@@ -1,0 +1,23 @@
+{
+    "development": {
+        "host"      :   "127.0.0.1",
+        "username"  :   "root",
+        "password"  :   "root",
+        "port"      :   "3306",
+        "database"  :   "jz_development"
+    },
+    "production": {
+        "host"      :   "127.0.0.1",
+        "username"  :   "root",
+        "password"  :   "root",
+        "port"      :   "3306",
+        "database"  :   "jz_production"
+    },
+    "test": {
+        "host"      :   "127.0.0.1",
+        "username"  :   "root",
+        "password"  :   "root",
+        "port"      :   "3306",
+        "database"  :   "jz_test"
+    }
+}

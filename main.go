@@ -4,8 +4,14 @@ import (
 	"net/http"
 	"github.com/labstack/echo"
 	"github.com/yigger/JZ-back/middleware"
-	routers "github.com/yigger/JZ-back/routers"
+	// routers "github.com/yigger/JZ-back/routers"
+	"github.com/yigger/JZ-back/conf"
+	"fmt"
 )
+
+func init() {
+	conf.LoadConf()
+}
 
 func main() {
 	e := echo.New()
@@ -15,7 +21,6 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
-	g.GET("/test", routers.UserLogin)
-
-	e.Logger.Fatal(e.Start(":1323"))
+	server := fmt.Sprintf("%s:%s", conf.Conf.Host, conf.Conf.Port)
+	e.Logger.Fatal(e.Start(server))
 }
