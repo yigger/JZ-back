@@ -42,6 +42,10 @@ var (
 	redisConfigPath	   	=	"conf/conf.d/redis.json"
 )
 
+func Development() bool {
+	return Conf.Environment == "development"
+}
+
 func LoadConf() {
 	loadCommonConf()
 	loadDatabaseConf()

@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 	"fmt"
+	"github.com/yigger/JZ-back/conf"
 )
 
 type User struct {
@@ -44,6 +45,11 @@ func (*User) GetUserByThirdSession(session string) (*User) {
 }
 
 func (User) IsLogin(session string) bool {
+	// development do not check login
+	if conf.Development() {
+		return true
+	}
+
 	var User User
 	u := User.GetUserByThirdSession(session)
 	if u == nil {

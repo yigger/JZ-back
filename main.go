@@ -15,9 +15,9 @@ func init() {
 
 func main() {
 	e := echo.New()
-	g := e.Group("/", middleware.CheckOpenId)
+	e.Use(middleware.CheckOpenId)
 
-	g.GET("/", func(c echo.Context) error {
+	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
