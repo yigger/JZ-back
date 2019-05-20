@@ -1,5 +1,7 @@
 {
     "environment"   :   "development",
     "host"          :   "127.0.0.1",
-    "port"          :   "5566"
+    "port"          :   "5566",
+    "app_id": "",
+    "app_secret": ""
 }

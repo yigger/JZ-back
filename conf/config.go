@@ -14,6 +14,8 @@ type Configuration struct {
 	Environment		string  	`json:"environment"`
 	Host			string		`json:"host"`
 	Port			string		`json:"port"`
+	AppId			string		`json:"app_id"`
+	AppSecret		string 		`json:"app_secret"`
 
 	// Database Conf Struct
 	DbConfig		DatabaseConf
