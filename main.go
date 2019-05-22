@@ -1,13 +1,16 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/yigger/JZ-back/controller"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/conf"
-	"fmt"
+	"github.com/yigger/JZ-back/logs"
 )
 
 func init() {
+	logs.LoadLog()  
 	conf.LoadConf()
 }
 

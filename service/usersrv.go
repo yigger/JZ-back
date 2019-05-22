@@ -8,7 +8,6 @@ import (
 	// "fmt"
 )
 
-// User service.
 var User = &userService{
 	mutex: &sync.Mutex{},
 }
@@ -35,3 +34,5 @@ func (srv *userService) Login(code string) (user *model.User, err error) {
 
 	return
 }
+
+
