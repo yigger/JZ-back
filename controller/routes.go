@@ -1,7 +1,8 @@
-package controllers
+package controller
 
 import (
 	"github.com/labstack/echo"
+
 	"github.com/yigger/JZ-back/middleware"
 )
 
@@ -15,9 +16,9 @@ func EchoNew() *echo.Echo {
 }
 
 func loadRoutes() {
-	// middleware, check user is login
-	echoServer.Use(middleware.CheckOpenId)
-
 	echoServer.POST("/login", Login)
 
+	api := echoServer.Group("/api")
+	// middleware, check user is login
+	api.Use(middleware.CheckOpenId)
 }

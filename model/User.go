@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	Id       				uint64	`json:"id,omitempty"`
+	Id       				uint64	`json:"id,primary_key"`
 	Openid					string
 	Email 					string
 	// nickname
@@ -31,13 +31,13 @@ type User struct {
 	// remind
 	// hidden_asset_money
 	// already_login
-	CreatedAt time.Time `gorm:"column:created_time" json:"created_time,omitempty"`
-	UpdatedAt time.Time `gorm:"column:updated_time" json:"updated_time,omitempty"`
+	CreatedAt time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
+	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
 }
 
 func (*User) GetUserByThirdSession(session string) (*User) {
 	user := User{}
-	if err := DB().Where("third_session = ?", session).First(&user).Error; err != nil {
+	if err := db.Where("third_session = ?", session).First(&user).Error; err != nil {
 		return nil
 	}
 
@@ -46,7 +46,7 @@ func (*User) GetUserByThirdSession(session string) (*User) {
 
 func (User) GetUserByOpenId(openid string) (*User) {
 	user := User{}
-	if err := DB().Where("openid = ?", openid).First(&user).Error; err != nil {
+	if err := db.Where("openid = ?", openid).First(&user).Error; err != nil {
 		return nil
 	}
 
@@ -76,7 +76,7 @@ func (user User) sessionKey() string {
 
 // 缓存中的 session 值
 func (user User) CacheSessionVal() (string) {
-	cacheVal, err := Redis().Get(user.sessionKey()).Result()
+	cacheVal, err := redisCli.Get(user.sessionKey()).Result()
 	if err != nil {
 		return ""
 	}
@@ -84,13 +84,10 @@ func (user User) CacheSessionVal() (string) {
 	return cacheVal
 }
 
-func (user User) CreateUser() (*User) {
-	u := &User{}
-	// third_session = Digest::SHA1.hexdigest("#{rand(9999)}#{session_key}#{rand(9999)}")
-	// user.third_session = third_session
-	// user.save!
+func (User) CreateUser(user *User) {
+	db.Create(user)
+}
 
-
-
-	return u
+func (User) UpdateUser(user *User) {
+	db.Save(user)
 }

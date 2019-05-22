@@ -11,7 +11,7 @@ import (
 var db *gorm.DB
 var redisCli *redis.Client
 
-func DB() *gorm.DB {
+func ConnectDB() *gorm.DB {
 	if db == nil {
 		path := fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local", conf.Conf.DbConfig.Username, conf.Conf.DbConfig.Password, conf.Conf.DbConfig.Database)
 		var err error
@@ -26,7 +26,7 @@ func DB() *gorm.DB {
 	return db
 }
 
-func Redis() (*redis.Client) {
+func ConnectRedis() (*redis.Client) {
 	if redisCli == nil {
 		redisCli = redis.NewClient(&redis.Options{
 			Addr:     conf.Conf.RedisConfig.Host,

@@ -1,22 +1,23 @@
 package tests
 
 import (
-    "testing"
-    . "github.com/smartystreets/goconvey/convey"
+	"testing"
+	// "net/http"
+	// "net/http/httptest"
+	// "github.com/labstack/echo"
+	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/yigger/JZ-back/service"
 )
 
-func TestSpec(t *testing.T) {
+func TestLogin(t *testing.T) {
+	Convey("Exist user Given code to login", t, func() {
+		code := "abc"
+		// user, err := service.User.Login(code)
+		
+	})
 
-	// Only pass t into top-level Convey calls
-	Convey("Given some integer with a starting value", t, func() {
-		x := 1
-
-		Convey("When the integer is incremented", func() {
-			x++
-
-			Convey("The value should be greater by one", func() {
-				So(x, ShouldEqual, 2)
-			})
-		})
+	Convey("Non-Exist user Given code to login", t, func() {
+		
 	})
 }
