@@ -43,9 +43,7 @@ func updateUserAction(c echo.Context) error {
 	
 	userParams := params["user"].(map[string]interface{})
 	service.User.UpdateUser(userParams)
-	
-	
-	// json.Data = user
+	json.Data = service.CurrentUser
 
 	return nil
 }

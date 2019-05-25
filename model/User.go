@@ -8,23 +8,23 @@ type User struct {
 	CommonModel
 	Openid					string  `gorm:"unique;not null" json:"open_id,omitempty"`
 	Email					string	`gorm:"-"`
-	Nickname				string	`json:"nickname,omitempty"`
+	Nickname				string	`json:"nickName,omitempty"`
 	Language				string	`json:"language,omitempty"`
 	City					string	`json:"city,omitempty"`
 	Province				string	`json:"province,omitempty"`
 	AvatarUrl				string	`json:"avatar_url"`
 	Country					string	`json:"country,omitempty"`
 	SessionKey				string	`form:"session_key" json:"session_key"`
-	Gender					uint64
+	Gender					uint64	`form:"gender" json:"gender"`
 	Uid						uint64	`json:"uid"`
 	ThirdSession			string	`json:"third_session,omitempty"`
 	Phone					string
 	Budget					float64	`json:"budget,omitempty"`
 	BgAvatarUrl				string	`json:"bg_avatar_url,omitempty"`
 	BonusPoints				uint64	`json:"bonus_points,omitempty"`
-	HeaderPosition1			string	`json:"header_position_1,omitempty"`
-	HeaderPosition2			string	`json:"header_position_2,omitempty"`
-	HeaderPosition3			string	`json:"header_position_3,omitempty"`
+	HeaderPosition1			string	`gorm:"column:header_position_1" json:"header_position_1,omitempty"`
+	HeaderPosition2			string	`gorm:"column:header_position_2" json:"header_position_2,omitempty"`
+	HeaderPosition3			string	`gorm:"column:header_position_3" json:"header_position_3,omitempty"`
 	BgAvatarId				uint64	`json:"bg_avatar_id,omitempty"`
 	Remind					uint64	`json:"remind,omitempty"`
 	HiddenAssetMoney		uint64	`json:"hidden_asset_money"`

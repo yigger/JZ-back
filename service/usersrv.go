@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"sync"
 	"strconv"
 
@@ -20,6 +19,7 @@ type userService struct {
 	mutex *sync.Mutex
 }
 
+// Middleware check user login and set global current_user
 func (srv *userService) CheckLogin(session string) bool {
 	var User model.User
 
@@ -55,23 +55,22 @@ func (srv *userService) Login(code string) (user *model.User, err error) {
 	return
 }
 
-func (srv *userService) UpdateUser(userParams map[string]interface{}) (user *model.User, err error) {
+func (srv *userService) UpdateUser(userParams map[string]interface{}) (*model.User, error) {
 	gender, err := strconv.ParseUint(userParams["gender"].(string), 10, 64)
 	if nil != err {
-		return
+		return nil, err
 	}
 
+	CurrentUser.Country = userParams["country"].(string)
+	CurrentUser.City = userParams["city"].(string)
+	CurrentUser.Gender = gender
+	CurrentUser.Language = userParams["language"].(string)
+	CurrentUser.Province = userParams["province"].(string)
+	CurrentUser.Nickname = userParams["nickName"].(string)
+
+	var User model.User
+	User.UpdateUser(CurrentUser)
 	
-	user = &model.User{
-		Country: userParams["country"].(string),
-		City: userParams["city"].(string),
-		Gender: gender,
-		Language: userParams["language"].(string),
-		Province: userParams["province"].(string),
-		// BgAvatarId: userParams["bg_avatar_id"].(uint32),
-		// HiddenAssetMoney: userParams["hidden_asset_money"].(uint32),
-	}
-
-	return 
+	return CurrentUser, nil
 }
 
