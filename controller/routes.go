@@ -16,9 +16,12 @@ func EchoNew() *echo.Echo {
 }
 
 func loadRoutes() {
-	echoServer.POST("/login", Login)
+	echoServer.POST("/login", LoginAction)
 
 	api := echoServer.Group("/api")
 	// middleware, check user is login
 	api.Use(middleware.CheckOpenId)
+
+	user := api.Group("/users")
+	user.PUT("/update_user", updateUserAction)
 }

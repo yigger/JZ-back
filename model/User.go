@@ -1,38 +1,41 @@
 package model
 
 import (
-	"time"
 	"fmt"
-	"github.com/yigger/JZ-back/conf"
 )
 
 type User struct {
-	Id       				uint64	`json:"id,primary_key"`
-	Openid					string
-	Email 					string
-	// nickname
-	// language
-	// city
-	// province
-	// avatar_url
-	// country
+	CommonModel
+	Openid					string  `gorm:"unique;not null" json:"open_id,omitempty"`
+	Email					string	`gorm:"-"`
+	Nickname				string	`json:"nickname,omitempty"`
+	Language				string	`json:"language,omitempty"`
+	City					string	`json:"city,omitempty"`
+	Province				string	`json:"province,omitempty"`
+	AvatarUrl				string	`json:"avatar_url"`
+	Country					string	`json:"country,omitempty"`
 	SessionKey				string	`form:"session_key" json:"session_key"`
-	// gender
-	// uid
-	// third_session
-	// phone
-	// budget
-	// bg_avatar_url
-	// bonus_points
-	// header_position_1
-	// header_position_2
-	// header_position_3
-	// bg_avatar_id
-	// remind
-	// hidden_asset_money
-	// already_login
-	CreatedAt time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
-	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
+	Gender					uint64
+	Uid						uint64	`json:"uid"`
+	ThirdSession			string	`json:"third_session,omitempty"`
+	Phone					string
+	Budget					float64	`json:"budget,omitempty"`
+	BgAvatarUrl				string	`json:"bg_avatar_url,omitempty"`
+	BonusPoints				uint64	`json:"bonus_points,omitempty"`
+	HeaderPosition1			string	`json:"header_position_1,omitempty"`
+	HeaderPosition2			string	`json:"header_position_2,omitempty"`
+	HeaderPosition3			string	`json:"header_position_3,omitempty"`
+	BgAvatarId				uint64	`json:"bg_avatar_id,omitempty"`
+	Remind					uint64	`json:"remind,omitempty"`
+	HiddenAssetMoney		uint64	`json:"hidden_asset_money"`
+	AlreadyLogin			uint64	`json:"already_login"`
+}
+
+func (*User) GetFirst() (*User) {
+	user := User{}
+	db.First(&user)
+
+	return &user
 }
 
 func (*User) GetUserByThirdSession(session string) (*User) {
@@ -53,24 +56,8 @@ func (User) GetUserByOpenId(openid string) (*User) {
 	return &user
 }
 
-func (User) IsLogin(session string) bool {
-	// development do not check login
-	if conf.Development() {
-		return true
-	}
-
-	var User User
-	u := User.GetUserByThirdSession(session)
-	if u == nil {
-		return false
-	}
-
-	return u.CacheSessionVal() != ""
-}
-
 func (user User) sessionKey() string {
-	var key string
-	key = fmt.Sprintf("@user_%d_session_key@", user.Id)
+	key := fmt.Sprintf("@user_%d_session_key@", user.ID)
 	return key
 }
 

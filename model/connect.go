@@ -1,15 +1,22 @@
 package model
 
 import (
+	"fmt"
+	"time"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/go-redis/redis"
-	"github.com/yigger/JZ-back/conf"
-	"fmt"
+
+	"github.com/yigger/JZ-back/conf"	
 )
 
 var db *gorm.DB
 var redisCli *redis.Client
+type CommonModel struct {
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
 
 func ConnectDB() *gorm.DB {
 	if db == nil {
