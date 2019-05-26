@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	// "github.com/yigger/JZ-back/logs"
 )
 
 type Statement struct {
@@ -16,7 +17,7 @@ type Statement struct {
 	Year					int			`json:"year"`
 	Month					int
 	Day						int
-	Time					time.Time
+	Time					time.Time	`gorm:"-" json:"time"`
 	Residue					float64
 	Location				string
 	Nation					string
@@ -26,4 +27,12 @@ type Statement struct {
 	Street					string
 	TargetAssetId			int
 	Title					string
+}
+
+func (user User) GetStatements() (statements []*Statement, err error) {
+	if err = db.Where("user_id = ?", user.ID).Find(&statements).Error; err != nil {
+		// logs.Info(err)
+	}
+
+	return
 }

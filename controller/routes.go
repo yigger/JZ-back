@@ -22,6 +22,8 @@ func loadRoutes() {
 	// middleware, check user is login
 	api.Use(middleware.CheckOpenId)
 
+	api.GET("/index", ShowStatementsAction)
+
 	user := api.Group("/users")
 	user.PUT("/update_user", updateUserAction)
 }
