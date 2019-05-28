@@ -12,3 +12,6 @@ cp conf/conf.d/jz.json.example cp conf/conf.d/jz.json
 
 cp conf/conf.d/redis.json.example cp conf/conf.d/redis.json
 ```
+
+## 热加载
+https://github.com/cosmtrek/air
