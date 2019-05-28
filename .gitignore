@@ -1,2 +1,5 @@
 .vscode/
 conf/conf.d/*.json
+.idea/
+air.exe
+tmp/

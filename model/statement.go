@@ -1,7 +1,7 @@
 package model
 
 import (
-	"time"
+	// "time"
 	// "github.com/yigger/JZ-back/logs"
 )
 
@@ -17,7 +17,7 @@ type Statement struct {
 	Year					int			`json:"year"`
 	Month					int
 	Day						int
-	Time					time.Time	`gorm:"-" json:"time"`
+	// Time					time.Time	`gorm:"-" json:"time"`
 	Residue					float64
 	Location				string
 	Nation					string
