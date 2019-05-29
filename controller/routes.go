@@ -19,11 +19,16 @@ func loadRoutes() {
 	echoServer.POST("/login", LoginAction)
 
 	api := echoServer.Group("/api")
-	// middleware, check user is login
+	// 中间件，身份校验
 	api.Use(middleware.CheckOpenId)
 
+	// 获取首页的账单列表
 	api.GET("/index", ShowStatementsAction)
 
+	// 获取首页的头部信息
+	api.GET("/header", ShowIndexHeader)
+
+	// 更新用户
 	user := api.Group("/users")
 	user.PUT("/update_user", updateUserAction)
 }

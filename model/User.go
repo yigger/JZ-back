@@ -29,6 +29,8 @@ type User struct {
 	Remind					uint64	`json:"remind,omitempty"`
 	HiddenAssetMoney		uint64	`json:"hidden_asset_money"`
 	AlreadyLogin			uint64	`json:"already_login"`
+
+	Messages 				[]Message	//`gorm:"foreignkey:TargetId"`
 }
 
 func (*User) GetFirst() (*User) {
@@ -47,6 +49,36 @@ func (*User) GetUserByThirdSession(session string) (*User) {
 	return &user
 }
 
+// 是否有未读的消息
+func (user *User) WaitReadMessage() bool {
+	var count int
+	if err := db.Table("messages").Where("target_id = ? AND already_read = 0", user.ID).Count(&count).Error; err != nil {
+		return false
+	}
+
+	return count > 0
+}
+
+// 是否显示未读消息的顶部提示
+func (user *User) ShowNoticeBar() bool {
+	var count int
+	if err := db.Table("messages").Where("target_id = ? AND already_read = 0 AND target_type = ?", user.ID, MESSAGE_NOTICE_BAR).Count(&count).Error; err != nil {
+		return false
+	}
+
+	return count > 0
+}
+
+// 最新的一条消息
+func (user *User) LatestMessage() Message {
+	message := Message{}
+	if err := db.Where("target_id = ? AND already_read = 0 AND target_type = ?", user.ID, MESSAGE_NOTICE_BAR).Order("created_at desc").Find(&message).Error; err != nil {
+		
+	}
+
+	return message
+}
+
 func (User) GetUserByOpenId(openid string) (*User) {
 	user := User{}
 	if err := db.Where("openid = ?", openid).First(&user).Error; err != nil {
@@ -61,7 +93,7 @@ func (user User) sessionKey() string {
 	return key
 }
 
-// 缓存中的 session 值
+// 缓存中的 session 值
 func (user User) CacheSessionVal() (string) {
 	cacheVal, err := redisCli.Get(user.sessionKey()).Result()
 	if err != nil {
