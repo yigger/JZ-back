@@ -10,10 +10,5 @@ import (
 )
 
 func ShowStatementsAction(c echo.Context) error {
-	json := RenderJson()
-	defer c.JSON(http.StatusOK, json)
-
-	json.Data = service.Statement.GetStatements()
-
-	return nil
+	return c.JSON(http.StatusOK, service.Statement.GetStatements())
 }

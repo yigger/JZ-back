@@ -32,8 +32,7 @@ type Statement struct {
 
 func (user User) GetStatements() (statements []*Statement, err error) {
 	if err = db.Where("user_id = ?", user.ID).Find(&statements).Error; err != nil {
-		// logs.Info(err)
-		// fmt.Println(err)
+		fmt.Println(err)
 	}
 
 	return
