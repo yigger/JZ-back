@@ -2,6 +2,7 @@ package model
 
 import (
 	// "time"
+	"fmt"
 	// "github.com/yigger/JZ-back/logs"
 )
 
@@ -17,7 +18,7 @@ type Statement struct {
 	Year					int			`json:"year"`
 	Month					int
 	Day						int
-	// Time					time.Time	`gorm:"-" json:"time"`
+	// Time					time.Duration	`gorm:"column:time" json:"time"` // 不支持 Time 类型
 	Residue					float64
 	Location				string
 	Nation					string
@@ -32,7 +33,16 @@ type Statement struct {
 func (user User) GetStatements() (statements []*Statement, err error) {
 	if err = db.Where("user_id = ?", user.ID).Find(&statements).Error; err != nil {
 		// logs.Info(err)
+		// fmt.Println(err)
 	}
 
 	return
+}
+
+func (st *Statement) Date() string {
+	return fmt.Sprintf("%d-%02d-%02d %s", st.Year, st.Month, st.Day, st.Time())
+}
+
+func (st *Statement) Time() string {
+	return st.CreatedAt.Format("15:04:05")
 }

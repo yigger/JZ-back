@@ -21,7 +21,7 @@ type CommonModel struct {
 
 func ConnectDB() *gorm.DB {
 	if db == nil {
-		path := fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local", conf.Conf.DbConfig.Username, conf.Conf.DbConfig.Password, conf.Conf.DbConfig.Database)
+		path := fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=true&loc=Local", conf.Conf.DbConfig.Username, conf.Conf.DbConfig.Password, conf.Conf.DbConfig.Database)
 		var err error
 		db, err = gorm.Open("mysql", path)
 		if err != nil {

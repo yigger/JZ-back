@@ -5,6 +5,7 @@ import (
 	
 	"github.com/yigger/JZ-back/logs"
 	"github.com/yigger/JZ-back/model"
+	"github.com/yigger/jodaTime"
 )
 
 var Statement = &statementService{mutex: &sync.Mutex{}}
@@ -27,17 +28,17 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 			"description": statement.Description,
 			"title": statement.Title,
 			"money": statement.Amount,
-			"date": "暂无",
-			"category": "",
-			"icon_path": "",
-			"asset": "",
-			"time": "",
+			"date": nil,
+			"category": nil,
+			"icon_path": nil,
+			"asset": nil,
+			"time": statement.Time(),
 			"location": statement.Location,
 			"province": statement.Province,
 			"city": statement.City,
 			"street": statement.Street,
-			"month_day": statement.Year,
-			"timeStr": statement.Day,
+			"month_day": "",
+			"timeStr": jodaTime.Format("MM-dd H:m", statement.CreatedAt),
 			"week": "",
 		}
 
