@@ -1,10 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"time"
 	"sync"
-	
+	"strconv"
+	"github.com/mitchellh/mapstructure"
 	"github.com/yigger/jodaTime"
+
 	. "github.com/yigger/JZ-back/conf"
 	"github.com/yigger/JZ-back/logs"
 	"github.com/yigger/JZ-back/model"
@@ -64,4 +67,44 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 	}
 	
 	return
+}
+
+func (src *statementService)CreateStatement(params map[string]interface{}) (*model.Statement, error) {
+	statementParams := formatStatementParams(params)
+	fmt.Println(statementParams)
+	statement := &model.Statement{}
+	err := mapstructure.Decode(statementParams, &statement)
+	if err != nil {
+		fmt.Println(err)
+		return statement, err
+	}
+
+	var Statement model.Statement
+	statement.UserId = CurrentUser.ID
+	Statement.Create(statement)
+	return statement, nil
+}
+
+func formatStatementParams(params map[string]interface{}) (map[string]interface{}) {
+	paramsTime := fmt.Sprintf("%s %s", params["date"], params["time"])
+	layout := "2006-01-02 15:04:05"
+	time, _ := time.Parse(layout, paramsTime)
+
+	categoryId, _ := strconv.ParseInt(params["category_id"].(string), 10, 64)
+	assetId, _ := strconv.ParseInt(params["asset_id"].(string), 10, 64)
+	amount, _ := strconv.ParseFloat(params["amount"].(string), 64)
+
+	params = map[string]interface{}{
+		"CategoryId": categoryId,
+      	"AssetId": assetId,
+		"Amount": amount,
+		"Type": params["type"],
+      	"Description": params["description"],
+		"Year": time.Year(),
+		"Month": time.Month(),
+		"Day": time.Day(),
+		"CreatedAt": time,
+	}
+
+	return params
 }

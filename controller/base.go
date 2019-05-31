@@ -5,6 +5,7 @@ type Result struct {
 	Status  int         `json:"status"` // return code, 0 for succ
 	Msg  	string      `json:"msg"`  // message
 	Data    interface{} `json:"data"` // data object
+	Error   interface{}	`json:"error"`
 }
 
 // NewResult creates a result with Code=0, Msg="", Data=nil.
@@ -13,6 +14,7 @@ func RenderJson() *Result {
 		Status: 200,
 		Msg:  "",
 		Data: nil,
+		Error: nil,
 	}
 }
 

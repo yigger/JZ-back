@@ -9,25 +9,25 @@ import (
 type Statement struct {
 	CommonModel
 
-	UserId					int  		`json:"user_id"`
+	UserId					uint  		`json:"user_id"`
 	CategoryId				int  		`json:"category_id"`
 	AssetId					int  		`json:"asset_id"`
 	Amount					float64  	`json:"amount"`
 	Type					string      `json:"type"`
 	Description				string      `json:"description"`
 	Year					int			`json:"year"`
-	Month					int
-	Day						int
+	Month					int			`json:"month"`
+	Day						int			`json:"day"`
 	// Time					time.Duration	`gorm:"column:time" json:"time"` // 不支持 Time 类型
-	Residue					float64
-	Location				string
-	Nation					string
-	Province				string
-	City					string
-	District				string
-	Street					string
-	TargetAssetId			int
-	Title					string
+	Residue					float64		`json:"residue"`
+	Location				string		`json:"location"`
+	Nation					string		`json:"nation"`
+	Province				string		`json:"province"`
+	City					string		`json:"city"`
+	District				string		`json:"district"`
+	Street					string		`json:"street"`
+	TargetAssetId			int			`json:"target_asset_id"`
+	Title					string		`json:"title"`
 }
 
 func (user User) GetStatements() (statements []*Statement, err error) {
@@ -44,4 +44,8 @@ func (st *Statement) Date() string {
 
 func (st *Statement) Time() string {
 	return st.CreatedAt.Format("15:04:05")
+}
+
+func (Statement) Create(statement *Statement) {
+	db.Create(statement)
 }

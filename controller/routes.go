@@ -28,6 +28,11 @@ func loadRoutes() {
 	// 获取首页的头部信息
 	api.GET("/header", ShowIndexHeader)
 
+	// 相关账单
+	statement := api.Group("/statements")
+	statement.POST("/create", CreateStatementAction)
+
+
 	// 更新用户
 	user := api.Group("/users")
 	user.PUT("/update_user", updateUserAction)
