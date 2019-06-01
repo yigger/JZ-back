@@ -233,3 +233,45 @@ func (*statementService) GetStatementAssets() (res map[string]interface{}) {
 
 	return
 }
+
+
+func (*statementService) GetStatementCategories(statementType string) (res map[string]interface{}) {
+	db := model.ConnectDB()
+
+	// 分类
+	var categories []model.Category
+	if err := db.Model(&CurrentUser).Where("parent_id = 0 AND type = ?", statementType).Association("Categories").Find(&categories).Error; err != nil {
+		panic(err)
+	}
+	categoryRes := []map[string]interface{}{}
+	for _, category := range categories {
+		var childs []model.Category
+		db.Where("parent_id = ?", category.ID).Find(&childs)
+
+		json := map[string]interface{}{
+			"id": category.ID,
+			"name": category.Name,
+			"icon_path": category.IconPath,
+			"childs": childs,
+		}
+		categoryRes = append(categoryRes, json)
+	}
+
+	// 常用的列表
+	var frequents []model.Category
+	if err := db.Model(&CurrentUser).
+				 Where("parent_id > 0 and frequent > 5 AND type = ?", statementType).
+				 Order("frequent desc").
+				 Limit(10).
+				 Association("Categories").
+				 Find(&frequents).Error; err != nil {
+		panic(err)
+	}
+
+	res = map[string]interface{}{
+		"categories": categoryRes,
+		"frequent": frequents,
+	}
+
+	return
+}

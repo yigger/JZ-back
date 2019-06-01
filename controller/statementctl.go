@@ -60,7 +60,8 @@ func GetStatementAssetsAction(c echo.Context) error {
 }
 
 func GetStatementCategoriesAction(c echo.Context) error {
-	return c.JSON(http.StatusOK, "su")
+	data := service.Statement.GetStatementCategories(c.FormValue("type"))
+	return c.JSON(http.StatusOK, data)
 }
 
 func CategoryFrequentUseAction(c echo.Context) error {
