@@ -1,7 +1,6 @@
 package controller
 
 import (
-	// "fmt"
 	"net/http"
 	"github.com/labstack/echo"
 
@@ -53,4 +52,23 @@ func CreateStatementAction(c echo.Context) error {
 
 	
 	return nil
+}
+
+func GetStatementAssetsAction(c echo.Context) error {
+	data := service.Statement.GetStatementAssets()
+	return c.JSON(http.StatusOK, data)
+}
+
+func GetStatementCategoriesAction(c echo.Context) error {
+	return c.JSON(http.StatusOK, "su")
+}
+
+func CategoryFrequentUseAction(c echo.Context) error {
+	data := service.Statement.CategoryFrequentUse(c.FormValue("type"))
+	return c.JSON(http.StatusOK, data)
+}
+
+func AssetFrequentUseAction(c echo.Context) error {
+	data := service.Statement.AssetFrequentUse()
+	return c.JSON(http.StatusOK, data)
 }

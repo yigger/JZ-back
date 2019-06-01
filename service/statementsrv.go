@@ -89,12 +89,19 @@ func formatStatementParams(params map[string]interface{}) (map[string]interface{
 	paramsTime := fmt.Sprintf("%s %s", params["date"], params["time"])
 	layout := "2006-01-02 15:04:05"
 	time, _ := time.Parse(layout, paramsTime)
-
-	categoryId, _ := strconv.ParseInt(params["category_id"].(string), 10, 64)
-	assetId, _ := strconv.ParseInt(params["asset_id"].(string), 10, 64)
 	amount, _ := strconv.ParseFloat(params["amount"].(string), 64)
 
-	params = map[string]interface{}{
+	var categoryId int64
+	if _, exist := params["category_id"]; exist {
+		categoryId, _ = strconv.ParseInt(params["category_id"].(string), 10, 64)
+	}
+	
+	var assetId int64
+	if _, exist := params["asset_id"]; exist {
+		assetId, _ = strconv.ParseInt(params["asset_id"].(string), 10, 64)
+	}
+	
+	statementParams := map[string]interface{}{
 		"CategoryId": categoryId,
       	"AssetId": assetId,
 		"Amount": amount,
@@ -104,7 +111,125 @@ func formatStatementParams(params map[string]interface{}) (map[string]interface{
 		"Month": time.Month(),
 		"Day": time.Day(),
 		"CreatedAt": time,
+		"Location": params["location"],
+        "Nation": params["nation"],
+        "Province": params["province"],
+        "City": params["city"],
+        "District": params["district"],
+        "Street": params["street"],
 	}
 
-	return params
+	if params["type"] == "transfer" {
+		db := model.ConnectDB()
+		var fromAsset model.Asset
+		if err := db.Where("creator_id = ? AND id = ?", CurrentUser.ID, params["from"].(float64)).Find(&fromAsset).Error; err != nil {
+			fmt.Println(err)
+		}
+
+		var toAsset model.Asset
+		if err := db.Where("creator_id = ? AND id = ?", CurrentUser.ID, params["to"].(float64)).Find(&toAsset).Error; err != nil {
+			fmt.Println(err)
+		}
+
+		var category model.Category
+		if err := db.Where("user_id = ? AND id = ?", CurrentUser.ID, categoryId).Find(&category).Error; err != nil {
+			fmt.Println(err)
+		}
+
+		var transferCategory model.Category
+		if err := db.Where("user_id = ? AND type = 'transfer' AND name = ?", CurrentUser.ID, "转账").Find(&transferCategory).Error; err != nil {
+			fmt.Println(err)
+		}
+
+		statementParams["CategoryId"] = transferCategory.ID
+		statementParams["title"] = fmt.Sprintf("%s -> %s", fromAsset.Name, toAsset.Name)
+		statementParams["AssetId"], _ = params["from"].(float64)
+		statementParams["TargetAssetId"], _ = params["to"].(float64)
+	}
+
+	return statementParams
+}
+
+func (*statementService) CategoryFrequentUse(statementType string) ([]model.Category){
+	db := model.ConnectDB()
+
+	beforeMin, _ := time.ParseDuration("-30m")
+	afterMin, _ := time.ParseDuration("+30m")
+	beforeTime := time.Now().Add(beforeMin).Format("15:04:05")
+	afterTime := time.Now().Add(afterMin).Format("15:04:05")
+
+	var categories []model.Category
+	if err := db.Joins("JOIN statements ON statements.type = ? AND statements.category_id = categories.id", statementType).
+				 Where("parent_id > 0 and frequent >= 5 and categories.user_id = ?", CurrentUser.ID).
+				 Where(" time(`statements`.created_at) >= ? and time(`statements`.created_at) <= ?", beforeTime, afterTime).
+				 Group("categories.id").
+				 Order("frequent desc").
+				 Limit(3).
+				 Find(&categories).Error; err != nil {
+					 fmt.Println(err)
+				 }
+
+	return categories
+}
+
+func (*statementService) AssetFrequentUse() ([]model.Asset){
+	db := model.ConnectDB()
+	beforeMin, _ := time.ParseDuration("-30m")
+	afterMin, _ := time.ParseDuration("+30m")
+	beforeTime := time.Now().Add(beforeMin).Format("15:04:05")
+	afterTime := time.Now().Add(afterMin).Format("15:04:05")
+
+	var assets []model.Asset
+	if err := db.Joins("JOIN statements ON statements.asset_id = assets.id").
+				Where("parent_id > 0 and frequent >= 5 and assets.creator_id = ?", CurrentUser.ID).
+				Where(" time(`statements`.created_at) >= ? and time(`statements`.created_at) <= ?", beforeTime, afterTime).
+				Group("assets.id").
+				Order("frequent desc").
+				Limit(3).
+				Find(&assets).Error; err != nil {
+					fmt.Println(err)
+				}
+
+	return assets
+}
+
+func (*statementService) GetStatementAssets() (res map[string]interface{}) {
+	db := model.ConnectDB()
+
+	// 资产列表
+	var assets []model.Asset
+	if err := db.Model(&CurrentUser).Where("parent_id = 0").Association("Assets").Find(&assets).Error; err != nil {
+		panic(err)
+	}
+	assetRes := []map[string]interface{}{}
+	for _, asset := range assets {
+		var childs []model.Asset
+		db.Where("parent_id = ?", asset.ID).Find(&childs)
+
+		json := map[string]interface{}{
+			"id": asset.ID,
+			"name": asset.Name,
+			"icon_path": asset.IconPath,
+			"childs": childs,
+		}
+		assetRes = append(assetRes, json)
+	}
+
+	// 常用的列表
+	var frequents []model.Asset
+	if err := db.Model(&CurrentUser).
+				 Where("parent_id > 0 and frequent > 5").
+				 Order("frequent desc").
+				 Limit(10).
+				 Association("Assets").
+				 Find(&frequents).Error; err != nil {
+		panic(err)
+	}
+
+	res = map[string]interface{}{
+		"categories": assetRes,
+		"frequent": frequents,
+	}
+
+	return
 }

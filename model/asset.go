@@ -5,7 +5,6 @@ import "fmt"
 type Asset struct {
 	CommonModel
 
-	UserId					int  		`json:"user_id"`
 	Name					string  	`json:"name"`
 	Amount					float64		`json:"amount"`
 	ParentId				int     	`json:"parent_id"`

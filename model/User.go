@@ -31,6 +31,8 @@ type User struct {
 	AlreadyLogin			uint64	`json:"already_login"`
 
 	Messages 				[]Message	//`gorm:"foreignkey:TargetId"`
+	Assets					[]Asset `gorm:"FOREIGNKEY:CreatorId;ASSOCIATION_FOREIGNKEY:ID"`
+	Categories				[]Category `gorm:"FOREIGNKEY:UserId;ASSOCIATION_FOREIGNKEY:ID"`
 }
 
 func (*User) GetFirst() (*User) {
