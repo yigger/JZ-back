@@ -3,7 +3,8 @@ package controller
 import (
 	"net/http"
 	"github.com/labstack/echo"
-
+	
+	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/service"
 	// "github.com/leekchan/accounting"
 	// "github.com/yigger/JZ-back/logs"
@@ -29,7 +30,8 @@ func ShowIndexHeader(c echo.Context) error {
 }
 
 func ShowStatementsAction(c echo.Context) error {
-	return c.JSON(http.StatusOK, service.Statement.GetStatements())
+	data := service.Statement.GetStatements()
+	return c.JSON(http.StatusOK, data)
 }
 
 func CreateStatementAction(c echo.Context) error {
@@ -56,11 +58,36 @@ func CreateStatementAction(c echo.Context) error {
 
 func GetStatementAssetsAction(c echo.Context) error {
 	data := service.Statement.GetStatementAssets()
+
+	var frequents []map[string]interface{}
+	for _, asset := range data["frequent"].([]model.Asset) {
+		tmp := map[string]interface{}{
+			"id": asset.ID,
+			"name": asset.Name,
+			"icon_path": asset.IconUrl(),
+			"amount": asset.AmountHuman(),
+		}
+		frequents = append(frequents, tmp)
+	}
+	data["frequent"] = frequents
+
 	return c.JSON(http.StatusOK, data)
 }
 
 func GetStatementCategoriesAction(c echo.Context) error {
 	data := service.Statement.GetStatementCategories(c.FormValue("type"))
+	
+	var frequents []map[string]interface{}
+	for _, category := range data["frequent"].([]model.Category) {
+		tmp := map[string]interface{}{
+			"id": category.ID,
+			"name": category.Name,
+			"icon_path": category.IconUrl(),
+		}
+		frequents = append(frequents, tmp)
+	}
+	data["frequent"] = frequents
+
 	return c.JSON(http.StatusOK, data)
 }
 

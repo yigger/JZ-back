@@ -1,6 +1,10 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/yigger/JZ-back/conf"
+	"github.com/leekchan/accounting"
+)
 
 type Asset struct {
 	CommonModel
@@ -29,3 +33,11 @@ func (Asset) GetAssetById(id int) *Asset {
 	return ret
 }
 
+func (asset *Asset) IconUrl() string {
+	return conf.Host() + asset.IconPath
+}
+
+func (asset *Asset) AmountHuman() string {
+	ac := accounting.Accounting{Symbol: "", Precision: 2}
+	return ac.FormatMoney(asset.Amount)
+}

@@ -1,5 +1,8 @@
 package model
-import "fmt"
+import (
+	"fmt"
+	"github.com/yigger/JZ-back/conf"
+)
 type Category struct {
 	CommonModel
 
@@ -23,4 +26,9 @@ func (Category) GetCategoryById(id int) *Category {
 	}
 
 	return ret
+}
+
+
+func (category *Category) IconUrl() string {
+	return conf.Host() + category.IconPath
 }

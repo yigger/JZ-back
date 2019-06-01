@@ -3,6 +3,7 @@ package model
 import (
 	// "time"
 	"fmt"
+	"github.com/leekchan/accounting"
 	// "github.com/yigger/JZ-back/logs"
 )
 
@@ -48,4 +49,9 @@ func (st *Statement) Time() string {
 
 func (Statement) Create(statement *Statement) {
 	db.Create(statement)
+}
+
+func (st *Statement) AmountHuman() string {
+	ac := accounting.Accounting{Symbol: "", Precision: 2}
+	return ac.FormatMoney(st.Amount)
 }

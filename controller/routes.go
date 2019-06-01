@@ -12,6 +12,7 @@ var echoServer *echo.Echo
 func EchoNew() *echo.Echo {
 	echoServer = echo.New()
 	loadRoutes()
+	echoServer.Static("/", "public")
 	return echoServer
 }
 

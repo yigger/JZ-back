@@ -8,7 +8,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/yigger/jodaTime"
 
-	. "github.com/yigger/JZ-back/conf"
 	"github.com/yigger/JZ-back/logs"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/utils"
@@ -21,8 +20,17 @@ type statementService struct {
 }
 
 func (src *statementService)GetStatements() (res []map[string]interface{}) {
-	statements, err := CurrentUser.GetStatements()
-	if err != nil {
+	db := model.ConnectDB()
+
+	var statements []model.Statement
+	beforeDay, _ := time.ParseDuration("-168h") // 7day before
+	seventDayBefore := time.Now().Add(beforeDay).Format("2006-01-02 15:04:05")
+
+	if err := db.Model(&CurrentUser).
+				 Where("created_at >= ? AND created_at <= ?", seventDayBefore, time.Now()).
+				 Order("created_at desc").
+				 Association("Statements").
+				 Find(&statements).Error; err != nil {
 		logs.Info("err in statement list")
 		return nil
 	}
@@ -35,7 +43,7 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 			"type": statement.Type,
 			"description": statement.Description,
 			"title": statement.Title,
-			"money": statement.Amount,
+			"money": statement.AmountHuman(),
 			"date": jodaTime.Format("YYYY-MM-dd", dateTime),
 			"category": nil,
 			"icon_path": nil, // FIXME: icon的路径
@@ -46,7 +54,7 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 			"city": statement.City,
 			"street": statement.Street,
 			"month_day": jodaTime.Format("MM-dd", dateTime),
-			"timeStr": jodaTime.Format("MM-dd H:m", dateTime),
+			"timeStr": jodaTime.Format("MM-dd HH:mm", dateTime),
 			"week": utils.WeekMap[dateTime.Weekday().String()],
 		}
 
@@ -54,7 +62,7 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 		category := Category.GetCategoryById(statement.CategoryId)
 		if category != nil {
 			json["category"] = category.Name
-			json["icon_path"] = Conf.Host + category.IconPath
+			json["icon_path"] = category.IconUrl()
 		}
 		
 		var Asset model.Asset
@@ -65,13 +73,12 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 
 		res = append(res, json)
 	}
-	
+
 	return
 }
 
 func (src *statementService)CreateStatement(params map[string]interface{}) (*model.Statement, error) {
 	statementParams := formatStatementParams(params)
-	fmt.Println(statementParams)
 	statement := &model.Statement{}
 	err := mapstructure.Decode(statementParams, &statement)
 	if err != nil {
@@ -203,8 +210,19 @@ func (*statementService) GetStatementAssets() (res map[string]interface{}) {
 	}
 	assetRes := []map[string]interface{}{}
 	for _, asset := range assets {
-		var childs []model.Asset
-		db.Where("parent_id = ?", asset.ID).Find(&childs)
+		var assetChilds []model.Asset
+		db.Where("parent_id = ?", asset.ID).Find(&assetChilds)
+		// 组装子类的数据
+		var childs []map[string]interface{}
+		for _, child := range assetChilds {
+			tmp := map[string]interface{}{
+				"id": child.ID,
+				"name": child.Name,
+				"icon_path": child.IconUrl(),
+				"amount": child.AmountHuman(),
+			}
+			childs = append(childs, tmp)
+		}
 
 		json := map[string]interface{}{
 			"id": asset.ID,
@@ -237,7 +255,6 @@ func (*statementService) GetStatementAssets() (res map[string]interface{}) {
 
 func (*statementService) GetStatementCategories(statementType string) (res map[string]interface{}) {
 	db := model.ConnectDB()
-
 	// 分类
 	var categories []model.Category
 	if err := db.Model(&CurrentUser).Where("parent_id = 0 AND type = ?", statementType).Association("Categories").Find(&categories).Error; err != nil {
@@ -245,8 +262,19 @@ func (*statementService) GetStatementCategories(statementType string) (res map[s
 	}
 	categoryRes := []map[string]interface{}{}
 	for _, category := range categories {
-		var childs []model.Category
-		db.Where("parent_id = ?", category.ID).Find(&childs)
+		var childsCategory []model.Category
+		db.Where("parent_id = ?", category.ID).Find(&childsCategory)
+
+		// 组装子类的数据
+		var childs []map[string]interface{}
+		for _, child := range childsCategory {
+			tmp := map[string]interface{}{
+				"id": child.ID,
+				"name": child.Name,
+				"icon_path": child.IconUrl(),
+			}
+			childs = append(childs, tmp)
+		}
 
 		json := map[string]interface{}{
 			"id": category.ID,

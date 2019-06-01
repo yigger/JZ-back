@@ -30,8 +30,9 @@ type User struct {
 	HiddenAssetMoney		uint64	`json:"hidden_asset_money"`
 	AlreadyLogin			uint64	`json:"already_login"`
 
+	Statements				[]Statement `gorm:"FOREIGNKEY:UserId;ASSOCIATION_FOREIGNKEY:ID"`
 	Messages 				[]Message	//`gorm:"foreignkey:TargetId"`
-	Assets					[]Asset `gorm:"FOREIGNKEY:CreatorId;ASSOCIATION_FOREIGNKEY:ID"`
+	Assets					[]Asset 	`gorm:"FOREIGNKEY:CreatorId;ASSOCIATION_FOREIGNKEY:ID"`
 	Categories				[]Category `gorm:"FOREIGNKEY:UserId;ASSOCIATION_FOREIGNKEY:ID"`
 }
 

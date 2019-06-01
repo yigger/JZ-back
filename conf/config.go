@@ -16,6 +16,7 @@ type Configuration struct {
 	Port			string		`json:"port"`
 	AppId			string		`json:"app_id"`
 	AppSecret		string 		`json:"app_secret"`
+	Https			bool		`json:"https"`
 
 	// Database Conf Struct
 	DbConfig		DatabaseConf
@@ -52,6 +53,14 @@ func LoadConf() {
 	loadCommonConf()
 	loadDatabaseConf()
 	loadRedisConf()
+}
+
+func Host() string {
+	if Conf.Https {
+		return "https://" + Conf.Host + ":" + Conf.Port
+	} else {
+		return "http://" + Conf.Host + ":" + Conf.Port
+	}
 }
 
 func loadCommonConf() {
