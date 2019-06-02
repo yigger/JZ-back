@@ -1,5 +1,7 @@
 package utils
 
+import "github.com/leekchan/accounting"
+
 var WeekMap = map[string]string{
 	"Monday": 		"周一",
 	"Tuesday": 		"周二",
@@ -8,4 +10,9 @@ var WeekMap = map[string]string{
 	"Friday":		"周五",
 	"Saturday": 	"周六",
 	"Sunday": 		"周日",
+}
+
+func FormatMoney(money float64) string {
+	ac := accounting.Accounting{Symbol: "", Precision: 2}
+	return ac.FormatMoney(money)
 }

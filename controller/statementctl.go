@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"github.com/labstack/echo"
 	
+	"github.com/yigger/JZ-back/utils"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/service"
 	// "github.com/leekchan/accounting"
@@ -12,18 +13,19 @@ import (
 
 func ShowIndexHeader(c echo.Context) error {
 	// ac := accounting.Accounting{Symbol: "$", Precision: 2}
+	currentUser := service.CurrentUser
 	var json = map[string]interface{}{
-		"bg_avatar": nil,
+		"bg_avatar": currentUser.BgAvatarPath(),
 		"has_no_read": service.CurrentUser.WaitReadMessage(),
 		"show_notice_bar": service.CurrentUser.ShowNoticeBar(),
 		"notice_bar_path": nil,
 		"notice_text": nil,
-		"position_1_human_name": nil,
-		"position_2_human_name":  nil,
-		"position_3_human_name": nil,
-		"position_1_amount": nil,
-		"position_2_amount": nil,
-		"position_3_amount": nil,
+		"position_1_human_name": model.POSITION_ONE_HUMAN[currentUser.HeaderPosition1],
+		"position_2_human_name": model.POSITION_TWO_HUMAN[currentUser.HeaderPosition2],
+		"position_3_human_name": model.POSITION_THREE_HUMAN[currentUser.HeaderPosition3],
+		"position_1_amount": utils.FormatMoney(currentUser.GetHeaderAmount(currentUser.HeaderPosition1)),
+		"position_2_amount": utils.FormatMoney(currentUser.GetHeaderAmount(currentUser.HeaderPosition2)),
+		"position_3_amount": utils.FormatMoney(currentUser.GetHeaderAmount(currentUser.HeaderPosition3)),
 	}
 
 	return c.JSON(http.StatusOK, json)

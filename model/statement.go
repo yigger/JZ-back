@@ -1,8 +1,10 @@
 package model
 
 import (
-	// "time"
 	"fmt"
+	"time"
+	"strconv"
+	"github.com/jinzhu/gorm"
 	"github.com/leekchan/accounting"
 	// "github.com/yigger/JZ-back/logs"
 )
@@ -54,4 +56,26 @@ func (Statement) Create(statement *Statement) {
 func (st *Statement) AmountHuman() string {
 	ac := accounting.Accounting{Symbol: "", Precision: 2}
 	return ac.FormatMoney(st.Amount)
+}
+
+func StatementInDay(db *gorm.DB) *gorm.DB {
+	curTime := time.Now()
+	month, _ := strconv.ParseInt(curTime.Format("01"), 10, 64)
+    return db.Where("year = ? AND month = ? AND day = ?", curTime.Year(), month, curTime.Day())
+}
+
+func StatementInWeek(db *gorm.DB) *gorm.DB {
+    curTime := time.Now()
+    return db.Where("year = ? AND month = ? AND day = ?", curTime.Year(), curTime.Month(), curTime.Day())
+}
+
+func StatementInMonth(db *gorm.DB) *gorm.DB {
+	curTime := time.Now()
+	month, _ := strconv.ParseInt(curTime.Format("01"), 10, 64)
+    return db.Where("year = ? AND month = ?", curTime.Year(), month)
+}
+
+func StatementInYear(db *gorm.DB) *gorm.DB {
+    curTime := time.Now()
+    return db.Where("year = ?", curTime.Year())
 }

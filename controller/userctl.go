@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"github.com/labstack/echo"
 
+	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/service"
 	// "github.com/yigger/JZ-back/logs"
 )
@@ -28,6 +29,29 @@ func LoginAction(c echo.Context) error {
 	}
 
 	return nil
+}
+
+func GetUserAction(c echo.Context) error {
+	currentUser := service.CurrentUser
+	json := map[string]interface{}{
+		"id": currentUser.ID,
+		"avatar_url": nil,
+		"nickname": currentUser.Nickname,
+		"persist": currentUser.PersistDay(),
+		"bonus_points": currentUser.BonusPoints,
+		"sts_count": currentUser.StatementCount(),
+		"email": currentUser.Email,
+		"remind": currentUser.Remind == 1,
+		"bg_avatar_url": currentUser.BgAvatarPath(),
+		"hidden_asset_money": currentUser.HiddenAssetMoney,
+		"position_1_human_name": model.POSITION_ONE_HUMAN[currentUser.HeaderPosition1],
+		"position_2_human_name": model.POSITION_TWO_HUMAN[currentUser.HeaderPosition2],
+		"position_3_human_name": model.POSITION_THREE_HUMAN[currentUser.HeaderPosition3],
+		"position_1_amount": currentUser.GetHeaderAmount(currentUser.HeaderPosition1),
+		"position_2_amount": currentUser.GetHeaderAmount(currentUser.HeaderPosition2),
+		"position_3_amount": currentUser.GetHeaderAmount(currentUser.HeaderPosition3),
+	}
+	return c.JSON(http.StatusOK, json)
 }
 
 func updateUserAction(c echo.Context) error {

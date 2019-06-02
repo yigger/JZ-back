@@ -39,5 +39,6 @@ func loadRoutes() {
 
 	// 更新用户
 	user := api.Group("/users")
+	user.GET("", GetUserAction)
 	user.PUT("/update_user", updateUserAction)
 }

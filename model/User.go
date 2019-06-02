@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/yigger/JZ-back/conf"
 )
 
 type User struct {
@@ -18,7 +19,7 @@ type User struct {
 	Gender					uint64	`form:"gender" json:"gender"`
 	Uid						uint64	`json:"uid"`
 	ThirdSession			string	`json:"third_session,omitempty"`
-	Phone					string
+	Phone					string	`gorm:"-" json:"phone,omitempty"`
 	Budget					float64	`json:"budget,omitempty"`
 	BgAvatarUrl				string	`json:"bg_avatar_url,omitempty"`
 	BonusPoints				uint64	`json:"bonus_points,omitempty"`
@@ -80,6 +81,37 @@ func (user *User) LatestMessage() Message {
 	}
 
 	return message
+}
+
+func (user *User) BgAvatarPath() string {
+	userAsset := &UserAsset{}
+	if err := db.Find(&userAsset, user.BgAvatarId).Error; err != nil {
+		return ""
+	}
+	path := ""
+	// if userAsset.System == 0 {
+	path += userAsset.Path
+	// } else {
+	// 	path += ""
+	// }
+	return conf.Host() + "/" + path
+}
+
+func (user *User) PersistDay() int {
+	count := 0
+	err := db.Table("statements").Where("user_id = ?", user.ID).Select("count(distinct year, month, day)").Count(&count).Error
+	if err != nil {
+		count = 0
+	}
+	return count
+}
+
+func (user *User) StatementCount() int {
+	count := 0
+	if err := db.Table("statements").Where("user_id = ?", user.ID).Count(&count); err != nil {
+		count = 0
+	}
+	return count
 }
 
 func (User) GetUserByOpenId(openid string) (*User) {
