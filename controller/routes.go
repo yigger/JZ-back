@@ -32,6 +32,7 @@ func loadRoutes() {
 	// 相关账单
 	statement := api.Group("/statements")
 	statement.POST("", CreateStatementAction)
+	statement.PUT("/:id", UpdateStatementAction)
 	statement.GET("/assets", GetStatementAssetsAction)
 	statement.GET("/categories", GetStatementCategoriesAction)
 	statement.GET("/category_frequent", CategoryFrequentUseAction)

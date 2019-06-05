@@ -3,6 +3,7 @@ module github.com/yigger/JZ-back
 go 1.12
 
 require (
+	github.com/b3log/gulu v0.0.0-20190530021622-d4d6c98f79bb
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/go-redis/redis v6.15.2+incompatible
 	github.com/go-sql-driver/mysql v1.4.1 // indirect

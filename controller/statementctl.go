@@ -12,7 +12,6 @@ import (
 )
 
 func ShowIndexHeader(c echo.Context) error {
-	// ac := accounting.Accounting{Symbol: "$", Precision: 2}
 	currentUser := service.CurrentUser
 	var json = map[string]interface{}{
 		"bg_avatar": currentUser.BgAvatarPath(),
@@ -53,8 +52,28 @@ func CreateStatementAction(c echo.Context) error {
 	} else {
 		json.Data = statement
 	}
+	return nil
+}
 
-	
+func UpdateStatementAction(c echo.Context) error {
+	var result interface{}
+	defer c.JSON(http.StatusOK, result)
+
+	statementId := c.Param("id")
+	db := model.ConnectDB()
+	var statement model.Statement
+	if err := db.Model(service.CurrentUser).Where("statements.id = ?", statementId).Association("Statements").Find(&statement).Error; err != nil {
+		 result = err
+	} else {
+		params := make(map[string]interface{})
+		if err := c.Bind(&params); err != nil {
+			result = "无效的参数"
+			return nil
+		}
+
+		service.Statement.UpdateStatement(&statement, params)
+		result = "xixi"	
+	}
 	return nil
 }
 

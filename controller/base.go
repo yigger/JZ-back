@@ -1,5 +1,10 @@
 package controller
 
+import (
+	"os"
+	"github.com/b3log/gulu"
+)
+
 // Result represents HTTP response body.
 type Result struct {
 	Status  int         `json:"status"` // return code, 0 for succ
@@ -24,3 +29,5 @@ const (
 	CodeErr     = -1 // general error
 	CodeAuthErr = 2  // unauthenticated request
 )
+
+var logger = gulu.Log.NewLogger(os.Stdout)

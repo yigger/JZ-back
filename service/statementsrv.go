@@ -8,7 +8,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/yigger/jodaTime"
 
-	"github.com/yigger/JZ-back/logs"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/utils"
 )
@@ -19,7 +18,7 @@ type statementService struct {
 	mutex *sync.Mutex
 }
 
-func (src *statementService)GetStatements() (res []map[string]interface{}) {
+func (srv *statementService)GetStatements() (res []map[string]interface{}) {
 	db := model.ConnectDB()
 
 	var statements []model.Statement
@@ -31,7 +30,6 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 				 Order("created_at desc").
 				 Association("Statements").
 				 Find(&statements).Error; err != nil {
-		logs.Info("err in statement list")
 		return nil
 	}
 
@@ -46,7 +44,7 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 			"money": statement.AmountHuman(),
 			"date": jodaTime.Format("YYYY-MM-dd", dateTime),
 			"category": nil,
-			"icon_path": nil, // FIXME: icon的路径
+			"icon_path": nil,
 			"asset": nil,
 			"time": statement.Time(),
 			"location": statement.Location,
@@ -77,7 +75,7 @@ func (src *statementService)GetStatements() (res []map[string]interface{}) {
 	return
 }
 
-func (src *statementService)CreateStatement(params map[string]interface{}) (*model.Statement, error) {
+func (srv *statementService)CreateStatement(params map[string]interface{}) (*model.Statement, error) {
 	statementParams := formatStatementParams(params)
 	statement := &model.Statement{}
 	err := mapstructure.Decode(statementParams, &statement)
@@ -89,6 +87,18 @@ func (src *statementService)CreateStatement(params map[string]interface{}) (*mod
 	var Statement model.Statement
 	statement.UserId = CurrentUser.ID
 	Statement.Create(statement)
+	return statement, nil
+}
+
+func (srv *statementService)UpdateStatement(statement *model.Statement, params map[string]interface{}) (*model.Statement, error) {
+	// statementParams := formatStatementParams(params)
+	// err := mapstructure.Decode(statementParams, &statement)
+	// if err != nil {
+	// 	logger.Error(err)
+	// 	return statement, err
+	// }
+
+	logger.Info(statement)
 	return statement, nil
 }
 
@@ -130,22 +140,22 @@ func formatStatementParams(params map[string]interface{}) (map[string]interface{
 		db := model.ConnectDB()
 		var fromAsset model.Asset
 		if err := db.Where("creator_id = ? AND id = ?", CurrentUser.ID, params["from"].(float64)).Find(&fromAsset).Error; err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 		}
 
 		var toAsset model.Asset
 		if err := db.Where("creator_id = ? AND id = ?", CurrentUser.ID, params["to"].(float64)).Find(&toAsset).Error; err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 		}
 
 		var category model.Category
 		if err := db.Where("user_id = ? AND id = ?", CurrentUser.ID, categoryId).Find(&category).Error; err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 		}
 
 		var transferCategory model.Category
 		if err := db.Where("user_id = ? AND type = 'transfer' AND name = ?", CurrentUser.ID, "转账").Find(&transferCategory).Error; err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 		}
 
 		statementParams["CategoryId"] = transferCategory.ID
@@ -173,7 +183,7 @@ func (*statementService) CategoryFrequentUse(statementType string) ([]model.Cate
 				 Order("frequent desc").
 				 Limit(3).
 				 Find(&categories).Error; err != nil {
-					 fmt.Println(err)
+					logger.Error(err)
 				 }
 
 	return categories
@@ -194,7 +204,7 @@ func (*statementService) AssetFrequentUse() ([]model.Asset){
 				Order("frequent desc").
 				Limit(3).
 				Find(&assets).Error; err != nil {
-					fmt.Println(err)
+					logger.Error(err)
 				}
 
 	return assets
