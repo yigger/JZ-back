@@ -6,7 +6,6 @@ import (
 	"github.com/yigger/JZ-back/controller"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/conf"
-	"github.com/yigger/JZ-back/logs"
 )
 
 func init() {

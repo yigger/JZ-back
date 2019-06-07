@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"net/http"
 	"github.com/labstack/echo"
 
 	"github.com/yigger/JZ-back/middleware"
@@ -17,11 +18,16 @@ func EchoNew() *echo.Echo {
 }
 
 func loadRoutes() {
-	echoServer.POST("/login", LoginAction)
+	echoServer.GET("check_update", func(c echo.Context) (error) {
+		return c.JSON(http.StatusOK, 0)
+	})
 
 	api := echoServer.Group("/api")
 	// 中间件，身份校验
 	api.Use(middleware.CheckOpenId)
+
+	// 登录
+	api.POST("/check_openid", LoginAction)
 
 	// 获取首页的账单列表
 	api.GET("/index", ShowStatementsAction)
@@ -42,4 +48,7 @@ func loadRoutes() {
 	user := api.Group("/users")
 	user.GET("", GetUserAction)
 	user.PUT("/update_user", updateUserAction)
+
+	wallet := api.Group("/wallet")
+	wallet.GET("", GetWalletsAction)
 }

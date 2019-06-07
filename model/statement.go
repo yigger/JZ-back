@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"github.com/jinzhu/gorm"
 	"github.com/leekchan/accounting"
-	// "github.com/yigger/JZ-back/logs"
 )
 
 type Statement struct {
