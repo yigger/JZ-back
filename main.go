@@ -9,7 +9,6 @@ import (
 )
 
 func init() {
-	logs.LoadLog()  
 	conf.LoadConf()
 }
 
