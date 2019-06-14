@@ -97,6 +97,10 @@ func (user *User) BgAvatarPath() string {
 	return conf.Host() + "/" + path
 }
 
+func (user *User) AvatarPath() string {
+	return ""
+}
+
 func (user *User) PersistDay() int {
 	count := 0
 	err := db.Table("statements").Where("user_id = ?", user.ID).Select("count(distinct year, month, day)").Count(&count).Error

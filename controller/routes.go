@@ -51,4 +51,7 @@ func loadRoutes() {
 
 	wallet := api.Group("/wallet")
 	wallet.GET("", GetWalletsAction)
+
+	settings := api.Group("/settings")
+	settings.GET("", SettingIndexAction)
 }
