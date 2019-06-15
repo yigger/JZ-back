@@ -57,4 +57,5 @@ func loadRoutes() {
 	settings := api.Group("/settings")
 	settings.GET("", SettingIndexAction)
 	settings.GET("/about", AboutMeAction)
+	settings.POST("/feedback", FeedBackAction)
 }
