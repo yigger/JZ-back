@@ -1,7 +1,15 @@
 {
-    "environment"   :   "development",
-    "host"          :   "127.0.0.1",
-    "port"          :   "5566",
+    "port":   "5566",
+    "host":   "127.0.0.1",
+    "https":  false,
     "app_id": "",
-    "app_secret": ""
+    "app_secret": "",
+    "environment": "development",
+    "version": "3.5.2",
+    "about_me": {
+        "content": "因为热爱，所以坚持",
+        "others": [
+            ["小程序源代码", "https://github.com/yigger/jiezhang"]
+        ]
+    }
 }

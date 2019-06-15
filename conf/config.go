@@ -17,6 +17,8 @@ type Configuration struct {
 	AppId			string		`json:"app_id"`
 	AppSecret		string 		`json:"app_secret"`
 	Https			bool		`json:"https"`
+	Version			string      `json:"version"`
+	AboutMe			map[string]interface{} `json:"about_me"`
 
 	// Database Conf Struct
 	DbConfig		DatabaseConf

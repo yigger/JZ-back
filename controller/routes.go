@@ -35,7 +35,7 @@ func loadRoutes() {
 	// 获取首页的头部信息
 	api.GET("/header", ShowIndexHeader)
 
-	// 相关账单
+	// 账单相关接口
 	statement := api.Group("/statements")
 	statement.POST("", CreateStatementAction)
 	statement.PUT("/:id", UpdateStatementAction)
@@ -44,14 +44,17 @@ func loadRoutes() {
 	statement.GET("/category_frequent", CategoryFrequentUseAction)
 	statement.GET("/asset_frequent", AssetFrequentUseAction)
 
-	// 更新用户
+	// 用户相关接口
 	user := api.Group("/users")
 	user.GET("", GetUserAction)
 	user.PUT("/update_user", updateUserAction)
 
+	// 资产页相关接口
 	wallet := api.Group("/wallet")
 	wallet.GET("", GetWalletsAction)
 
+	// 设置页
 	settings := api.Group("/settings")
 	settings.GET("", SettingIndexAction)
+	settings.GET("/about", AboutMeAction)
 }

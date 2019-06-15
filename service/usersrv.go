@@ -2,7 +2,7 @@ package service
 
 import (
 	"sync"
-	"strconv"
+	// "strconv"
 
 	"github.com/yigger/JZ-back/utils"
 	"github.com/yigger/JZ-back/conf"
@@ -56,18 +56,21 @@ func (srv *userService) Login(code string) (user *model.User, err error) {
 }
 
 func (srv *userService) UpdateUser(userParams map[string]interface{}) (*model.User, error) {
-	gender, err := strconv.ParseUint(userParams["gender"].(string), 10, 64)
-	if nil != err {
-		return nil, err
+	var alreadyLogin uint64
+	if userParams["alreadyLogin"].(bool) {
+		alreadyLogin = 1
+	} else {
+		alreadyLogin = 0
 	}
 
 	CurrentUser.Country = userParams["country"].(string)
 	CurrentUser.City = userParams["city"].(string)
-	CurrentUser.Gender = gender
+	CurrentUser.Gender = uint64(userParams["gender"].(float64))
 	CurrentUser.Language = userParams["language"].(string)
 	CurrentUser.Province = userParams["province"].(string)
 	CurrentUser.Nickname = userParams["nickName"].(string)
-
+	CurrentUser.AvatarUrl = userParams["avatarUrl"].(string)
+	CurrentUser.AlreadyLogin = alreadyLogin
 	var User model.User
 	User.UpdateUser(CurrentUser)
 	

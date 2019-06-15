@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"github.com/labstack/echo"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/yigger/JZ-back/service"
 )
 
+// 登录的入口
 func LoginAction(c echo.Context) error {
 	req := c.Request()
 	code := req.Header.Get("X-WX-Code")
@@ -30,11 +30,12 @@ func LoginAction(c echo.Context) error {
 	return nil
 }
 
+// 获取用户信息
 func GetUserAction(c echo.Context) error {
 	currentUser := service.CurrentUser
 	json := map[string]interface{}{
 		"id": currentUser.ID,
-		"avatar_url": nil,
+		"avatar_url": currentUser.AvatarPath(),
 		"nickname": currentUser.Nickname,
 		"persist": currentUser.PersistDay(),
 		"bonus_points": currentUser.BonusPoints,
@@ -53,6 +54,7 @@ func GetUserAction(c echo.Context) error {
 	return c.JSON(http.StatusOK, json)
 }
 
+// 更新用户信息
 func updateUserAction(c echo.Context) error {
 	json := RenderJson()
 	defer c.JSON(http.StatusOK, json)
@@ -61,12 +63,12 @@ func updateUserAction(c echo.Context) error {
 	if err := c.Bind(&params); err != nil {
 		json.Status = CodeErr
 		json.Msg = "err params"
-		fmt.Println(err)
+		logger.Info(err)
 	}
 	
 	userParams := params["user"].(map[string]interface{})
+	userParams["alreadyLogin"] = params["already_login"]
 	service.User.UpdateUser(userParams)
-	json.Data = service.CurrentUser
 
 	return nil
 }

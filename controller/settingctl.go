@@ -3,7 +3,9 @@ package controller
 import (
 	"net/http"
 	"github.com/labstack/echo"
+
 	"github.com/yigger/JZ-back/service"
+	. "github.com/yigger/JZ-back/conf"
 )
 
 func SettingIndexAction(c echo.Context) error {
@@ -15,7 +17,16 @@ func SettingIndexAction(c echo.Context) error {
 			"bonus_points": currentUser.BonusPoints,
 			"already_login": currentUser.AlreadyLogin == 1,
 		},
-		"version": 3.7,
+		"version": Conf.Version,
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+func AboutMeAction(c echo.Context) error {
+	res := map[string]interface{}{
+		"version": Conf.Version,
+		"content": Conf.AboutMe["content"],
+		"others":  Conf.AboutMe["others"],
 	}
 	return c.JSON(http.StatusOK, res)
 }

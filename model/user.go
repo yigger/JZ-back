@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"github.com/yigger/JZ-back/conf"
+	. "github.com/yigger/JZ-back/log"
 )
 
 type User struct {
@@ -47,6 +48,7 @@ func (*User) GetFirst() (*User) {
 func (*User) GetUserByThirdSession(session string) (*User) {
 	user := User{}
 	if err := db.Where("third_session = ?", session).First(&user).Error; err != nil {
+		Log.Info(err)
 		return nil
 	}
 
@@ -57,6 +59,7 @@ func (*User) GetUserByThirdSession(session string) (*User) {
 func (user *User) WaitReadMessage() bool {
 	var count int
 	if err := db.Table("messages").Where("target_id = ? AND already_read = 0", user.ID).Count(&count).Error; err != nil {
+		Log.Info(err)
 		return false
 	}
 
@@ -67,6 +70,7 @@ func (user *User) WaitReadMessage() bool {
 func (user *User) ShowNoticeBar() bool {
 	var count int
 	if err := db.Table("messages").Where("target_id = ? AND already_read = 0 AND target_type = ?", user.ID, MESSAGE_NOTICE_BAR).Count(&count).Error; err != nil {
+		Log.Info(err)
 		return false
 	}
 
@@ -98,21 +102,23 @@ func (user *User) BgAvatarPath() string {
 }
 
 func (user *User) AvatarPath() string {
-	return ""
+	return user.AvatarUrl
 }
 
 func (user *User) PersistDay() int {
 	count := 0
-	err := db.Table("statements").Where("user_id = ?", user.ID).Select("count(distinct year, month, day)").Count(&count).Error
+	err := db.Model(&Statement{}).Where("user_id = ?", user.ID).Select("count(distinct year, month, day)").Count(&count).Error
 	if err != nil {
+		Log.Info(err)
 		count = 0
 	}
 	return count
 }
 
 func (user *User) StatementCount() int {
-	count := 0
-	if err := db.Table("statements").Where("user_id = ?", user.ID).Count(&count); err != nil {
+	var count int
+	if err := db.Model(&Statement{}).Where("user_id = ?", user.ID).Select("count(*)").Count(&count).Error; err != nil {
+		Log.Info(err)
 		count = 0
 	}
 	return count
@@ -121,6 +127,7 @@ func (user *User) StatementCount() int {
 func (User) GetUserByOpenId(openid string) (*User) {
 	user := User{}
 	if err := db.Where("openid = ?", openid).First(&user).Error; err != nil {
+		Log.Info(err)
 		return nil
 	}
 
@@ -136,6 +143,7 @@ func (user User) sessionKey() string {
 func (user User) CacheSessionVal() (string) {
 	cacheVal, err := redisCli.Get(user.sessionKey()).Result()
 	if err != nil {
+		Log.Info(err)
 		return ""
 	}
 
