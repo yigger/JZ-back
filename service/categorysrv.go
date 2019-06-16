@@ -50,3 +50,27 @@ func (CategoryService) GetCategoryHeader(parentId string, categoryType string) (
 	statements.Select("sum(amount) as amount").Scan(&allExpend)
 	return monthExpend.Amount, yearExpend.Amount, allExpend.Amount
 }
+
+func (CategoryService) GetStatementByCategoryId(categoryId string) ([]map[string]interface{}) {
+	db := model.ConnectDB()
+
+	var statements []model.Statement
+	db.Table("statements").
+		Where("user_id = ? AND category_id = ?", CurrentUser.ID, categoryId).
+		Group("year, month").
+		Order("statements.year desc").
+		Scan(&statements)
+
+	res := []map[string]interface{}{}
+	for _, st := range statements {
+		var childs []model.Statement
+		db.Table("statements").Where("user_id = ? AND category_id = ? AND year = ? AND month = ?", CurrentUser.ID, categoryId, st.Year, st.Month).Select("statements.*").Find(&childs)
+		res = append(res, map[string]interface{}{
+			"year": st.Year,
+			"month": st.Month,
+			"childs": childs,
+		})
+	}
+
+	return res
+}

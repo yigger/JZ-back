@@ -61,4 +61,5 @@ func loadRoutes() {
 	category := api.Group("/categories")
 	category.GET("/category_list", GetCategoryListAction)
 	category.GET("/category_childs", GetCategoryListAction)
+	category.GET("/category_statements", GetCategoryStatementsAction)
 }

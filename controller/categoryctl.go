@@ -39,3 +39,9 @@ func GetCategoryListAction(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, res)
 }
+
+func GetCategoryStatementsAction(c echo.Context) error {
+	categoryId := c.FormValue("category_id")
+	res := service.Category.GetStatementByCategoryId(categoryId)
+	return c.JSON(http.StatusOK, res)
+}
