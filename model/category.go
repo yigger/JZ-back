@@ -2,6 +2,7 @@ package model
 import (
 	"fmt"
 	"github.com/yigger/JZ-back/conf"
+	. "github.com/yigger/JZ-back/log"
 )
 type Category struct {
 	CommonModel
@@ -16,6 +17,22 @@ type Category struct {
 	Budget					float64		`json:"budget"`
 	Frequent				int			`json:"frequent"`
 	IsMess					int			`json:"is_mess"`
+
+	User					User
+}
+
+// CategoryList
+type CategoryItem struct {
+	ID				uint		`json:"id"`
+	Name			string		`json:"name"`
+	Order			int			`json:"order"`
+	IconPath		string		`json:"icon_path"`
+	ParentId		int			`json:"parent_id"`
+	Amount			string		`json:"amount"`
+}
+
+type SumResult struct {
+	Amount float64 //or int ,or some else
 }
 
 func (Category) GetCategoryById(id int) *Category {
@@ -28,7 +45,29 @@ func (Category) GetCategoryById(id int) *Category {
 	return ret
 }
 
-
 func (category *Category) IconUrl() string {
 	return conf.Host() + category.IconPath
+}
+
+func (category *Category) GetAmount() float64 {
+	var user User
+	if err := db.Model(&category).Related(&user).Error; err != nil {
+		Log.Errorf("GetAmount err: " + err.Error())
+		return 0
+	}
+	
+	var categoryIds []uint
+	if category.ParentId == 0 {
+		db.Table("categories").Where("parent_id = ?", category.ID).Pluck("ID", &categoryIds)
+	} else {
+		categoryIds = append(categoryIds, category.ID)
+	}
+
+	var sumResult SumResult
+	if err := db.Table("statements").Where("user_id = ? and category_id IN (?)", user.ID, categoryIds).Select("sum(amount) as amount").Scan(&sumResult).Error; err != nil {
+		Log.Info(err)
+		return 0
+	}
+
+	return sumResult.Amount
 }

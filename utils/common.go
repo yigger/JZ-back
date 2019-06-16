@@ -1,6 +1,9 @@
 package utils
 
-import "github.com/leekchan/accounting"
+import (
+	"github.com/leekchan/accounting"
+	"time"
+)
 
 var WeekMap = map[string]string{
 	"Monday": 		"周一",
@@ -11,6 +14,12 @@ var WeekMap = map[string]string{
 	"Saturday": 	"周六",
 	"Sunday": 		"周日",
 }
+
+var (
+	CurrentYear = time.Now().Format("2006")
+	CurrentMonth = time.Now().Format("01")
+	CurrentDay = time.Now().Format("02")
+)
 
 func FormatMoney(money float64) string {
 	ac := accounting.Accounting{Symbol: "", Precision: 2}
