@@ -29,6 +29,7 @@ type CategoryItem struct {
 	IconPath		string		`json:"icon_path"`
 	ParentId		int			`json:"parent_id"`
 	Amount			string		`json:"amount"`
+	Type			string 		`json:"type"`
 }
 
 type SumResult struct {

@@ -14,27 +14,39 @@ type CategoryService struct {
 	mutex *sync.Mutex
 }
 
-func (CategoryService) GetCategoryRootList(categoryType string) []model.Category {
+func (CategoryService) GetCategoryList(parentId string, categoryType string) []model.Category {
 	db := model.ConnectDB()
+	categories := db.Model(&CurrentUser).Where("`categories`.parent_id = ?", parentId)
 
-	categories := make([]model.Category, 0)
-	if err := db.Model(&CurrentUser).
-				Where("`categories`.parent_id = 0 AND `categories`.type = ?", categoryType).
-				Association("Categories").
-				Find(&categories).Error; err != nil {
+	if categoryType != "" {
+		categories = categories.Where("`categories`.type = ?", categoryType)
+	}
+
+	res := make([]model.Category, 0)
+	if err := categories.Association("Categories").Find(&res).Error; err != nil {
 		Log.Info(err)
 	}
 
-	return categories
+	return res
 }
 
-func (CategoryService) GetCategoryHeader(categoryType string) (float64, float64, float64) {
+func (CategoryService) GetCategoryHeader(parentId string, categoryType string) (float64, float64, float64) {
 	db := model.ConnectDB()
 	monthExpend := &model.SumResult{}
 	yearExpend := &model.SumResult{}
 	allExpend := &model.SumResult{}
-	db.Table("statements").Where("type = ? and user_id = ? and year = ? and month = ?", categoryType, CurrentUser.ID, utils.CurrentYear, utils.CurrentMonth).Select("sum(amount) as amount").Scan(&monthExpend)
-	db.Table("statements").Where("type = ? and user_id = ? and year = ?", categoryType, CurrentUser.ID, utils.CurrentYear).Select("sum(amount) as amount").Scan(&yearExpend)
-	db.Table("statements").Where("type = ? and user_id = ?", categoryType, CurrentUser.ID).Select("sum(amount) as amount").Scan(&allExpend)
+
+	statements := db.Table("statements").Where("user_id = ?", CurrentUser.ID)
+	if categoryType != "" {
+		statements = statements.Where("type = ?", categoryType)
+	} else {
+		categoryIds := []int{}
+		db.Model(&model.Category{}).Where("user_id = ? AND parent_id = ?", CurrentUser.ID, parentId).Pluck("ID", &categoryIds)
+		statements = statements.Where("category_id IN (?)", categoryIds)
+	}
+
+	statements.Where("year = ? and month = ?", utils.CurrentYear, utils.CurrentMonth).Select("sum(amount) as amount").Scan(&monthExpend)
+	statements.Where("year = ?", utils.CurrentYear).Select("sum(amount) as amount").Scan(&yearExpend)
+	statements.Select("sum(amount) as amount").Scan(&allExpend)
 	return monthExpend.Amount, yearExpend.Amount, allExpend.Amount
 }

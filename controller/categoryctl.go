@@ -9,9 +9,12 @@ import (
 	"github.com/yigger/JZ-back/utils"
 )
 
-func GetCategoryList(c echo.Context) error {
+// 收入/支出分类管理数据
+func GetCategoryListAction(c echo.Context) error {
 	categoryType := c.FormValue("type")
-	categories := service.Category.GetCategoryRootList(categoryType)
+	parentId := c.FormValue("parent_id")
+
+	categories := service.Category.GetCategoryList(parentId, categoryType)
 	var categoryList []*model.CategoryItem
 	for _, category := range categories {
 		categoryList = append(categoryList, &model.CategoryItem{
@@ -20,11 +23,12 @@ func GetCategoryList(c echo.Context) error {
 			Order:  category.Order,
 			IconPath: category.IconPath,
 			ParentId: category.ParentId,
+			Type: 	  category.Type,
 			Amount: utils.FormatMoney(category.GetAmount()),
 		})
 	}
 
-	monthSum, yearSum, AllSum := service.Category.GetCategoryHeader(categoryType)
+	monthSum, yearSum, AllSum := service.Category.GetCategoryHeader(parentId, categoryType)
 	res := map[string]interface{}{}
 	res["header"] = map[string]interface{}{
 		"month": utils.FormatMoney(monthSum),

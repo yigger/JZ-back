@@ -59,5 +59,6 @@ func loadRoutes() {
 	settings.GET("/about", AboutMeAction)
 
 	category := api.Group("/categories")
-	category.GET("/category_list", GetCategoryList)
+	category.GET("/category_list", GetCategoryListAction)
+	category.GET("/category_childs", GetCategoryListAction)
 }
