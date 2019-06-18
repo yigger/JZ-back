@@ -14,6 +14,7 @@ type CategoryService struct {
 	mutex *sync.Mutex
 }
 
+// 获取分类管理的列表
 func (CategoryService) GetCategoryList(parentId string, categoryType string) []model.Category {
 	db := model.ConnectDB()
 	categories := db.Model(&CurrentUser).Where("`categories`.parent_id = ?", parentId)
@@ -30,6 +31,7 @@ func (CategoryService) GetCategoryList(parentId string, categoryType string) []m
 	return res
 }
 
+// 获取分类管理的顶部数据信息
 func (CategoryService) GetCategoryHeader(parentId string, categoryType string) (float64, float64, float64) {
 	db := model.ConnectDB()
 	monthExpend := &model.SumResult{}
@@ -51,6 +53,7 @@ func (CategoryService) GetCategoryHeader(parentId string, categoryType string) (
 	return monthExpend.Amount, yearExpend.Amount, allExpend.Amount
 }
 
+// 根据 CategoryId 获取账单列表
 func (CategoryService) GetStatementByCategoryId(categoryId string) ([]map[string]interface{}) {
 	db := model.ConnectDB()
 
@@ -58,13 +61,21 @@ func (CategoryService) GetStatementByCategoryId(categoryId string) ([]map[string
 	db.Table("statements").
 		Where("user_id = ? AND category_id = ?", CurrentUser.ID, categoryId).
 		Group("year, month").
-		Order("statements.year desc").
+		Order("statements.year desc, month desc").
 		Scan(&statements)
 
 	res := []map[string]interface{}{}
 	for _, st := range statements {
-		var childs []model.Statement
-		db.Table("statements").Where("user_id = ? AND category_id = ? AND year = ? AND month = ?", CurrentUser.ID, categoryId, st.Year, st.Month).Select("statements.*").Find(&childs)
+		var childStatements []model.Statement
+		db.Table("statements").
+			Where("user_id = ? AND category_id = ? AND year = ? AND month = ?", CurrentUser.ID, categoryId, st.Year, st.Month).
+			Select("statements.*").Find(&childStatements)
+
+		// 结果集
+		var childs []interface{}
+		for _, statement := range childStatements {
+			childs = append(childs, statement.ToHumanJson())
+		}
 		res = append(res, map[string]interface{}{
 			"year": st.Year,
 			"month": st.Month,
@@ -73,4 +84,23 @@ func (CategoryService) GetStatementByCategoryId(categoryId string) ([]map[string
 	}
 
 	return res
+}
+
+func (CategoryService) GetParentList(categoryType string) (res []*model.CategoryItem) {
+	var Category model.Category
+	categories := Category.GetParentCategories(CurrentUser, categoryType)
+	if len(categories) != 0 {
+		for _, category := range categories {
+			res = append(res, &model.CategoryItem{
+				ID:		category.ID,
+				Name:	category.Name,
+				Order:  category.Order,
+				IconPath: category.IconPath,
+				ParentId: category.ParentId,
+				Type: 	  category.Type,
+				Amount: utils.FormatMoney(category.GetAmount()),
+			})
+		}
+	}
+	return
 }

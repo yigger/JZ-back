@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+	"github.com/yigger/JZ-back/utils"
+	"github.com/yigger/jodaTime"
 	"time"
 	"strconv"
 	"github.com/jinzhu/gorm"
@@ -55,6 +57,45 @@ func (Statement) Create(statement *Statement) {
 func (st *Statement) AmountHuman() string {
 	ac := accounting.Accounting{Symbol: "", Precision: 2}
 	return ac.FormatMoney(st.Amount)
+}
+
+func (statement *Statement) ToHumanJson() (json map[string]interface{}) {
+	dateTime, _ := time.ParseInLocation("2006-01-02 15:04:05", statement.Date(), time.Local)
+
+	json = map[string]interface{}{
+		"id": statement.ID,
+		"type": statement.Type,
+		"description": statement.Description,
+		"title": statement.Title,
+		"money": statement.AmountHuman(),
+		"date": jodaTime.Format("YYYY-MM-dd", dateTime),
+		"category": nil,
+		"icon_path": nil,
+		"asset": nil,
+		"time": statement.Time(),
+		"location": statement.Location,
+		"province": statement.Province,
+		"city": statement.City,
+		"street": statement.Street,
+		"month_day": jodaTime.Format("MM-dd", dateTime),
+		"timeStr": jodaTime.Format("MM-dd HH:mm", dateTime),
+		"week": utils.WeekMap[dateTime.Weekday().String()],
+	}
+
+	var Category Category
+	category := Category.GetCategoryById(statement.CategoryId)
+	if category != nil {
+		json["category"] = category.Name
+		json["icon_path"] = category.IconUrl()
+	}
+
+	var Asset Asset
+	asset := Asset.GetAssetById(statement.AssetId)
+	if asset != nil {
+		json["asset"] = asset.Name
+	}
+
+	return
 }
 
 func StatementInDay(db *gorm.DB) *gorm.DB {

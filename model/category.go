@@ -72,3 +72,10 @@ func (category *Category) GetAmount() float64 {
 
 	return sumResult.Amount
 }
+
+func (_ Category) GetParentCategories(user *User, categoryType string) (categories []Category) {
+	if err := db.Model(user).Where("parent_id = 0 AND type = ?", categoryType).Association("Categories").Find(&categories).Error; err != nil {
+		Log.Errorf(err.Error())
+	}
+	return
+}

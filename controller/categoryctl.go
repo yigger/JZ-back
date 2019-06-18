@@ -45,3 +45,9 @@ func GetCategoryStatementsAction(c echo.Context) error {
 	res := service.Category.GetStatementByCategoryId(categoryId)
 	return c.JSON(http.StatusOK, res)
 }
+
+func GetParentCategoriesAction(c echo.Context) error {
+	categoryType := c.FormValue("type")
+	res := service.Category.GetParentList(categoryType)
+	return c.JSON(http.StatusOK, res)
+}

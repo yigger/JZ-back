@@ -62,4 +62,5 @@ func loadRoutes() {
 	category.GET("/category_list", GetCategoryListAction)
 	category.GET("/category_childs", GetCategoryListAction)
 	category.GET("/category_statements", GetCategoryStatementsAction)
+	category.GET("/parent", GetParentCategoriesAction)
 }
