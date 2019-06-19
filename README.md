@@ -1,17 +1,60 @@
 ## 简介
-此仓库是 **洁账** 的 go 服务端，最开始在开发的时候是使用 rails 搭建起来的并且已经跑了一年多了，按理说我只需要一直维护 rails 版本的就可以了。But，既然是抱着学习的心态来做产品，我觉得不能只用自己熟悉的技术来开发，所以我选择了使用 echo 来重新搭建一遍，顺便从零开始学习 golang，所以就有了本仓库
+此仓库是 **洁账** 的 go 服务端，是基于 [Echo](https://github.com/labstack/echo) 框架开发的，由于本人也是第一次接触 go 语言，所以如果各位看官觉得代码写得不好或者有待优化的地方欢迎提 PR 指导指导。
 
-## 状态 - 开发中
+## 小程序端地址
+https://github.com/yigger/jiezhang
 
-## 部署与开发
+## 温馨提示：本项目处于开发中状态，暂不可同时配合小程序端使用。
+
+#### 目录
+- [环境配置](#环境配置)
+- [运行](#运行)
+- [目录结构](#目录结构)
+- [热加载](#热加载)
+
+## 环境配置
 ```
-配置文件都在 conf/conf.d
-cp conf/conf.d/database.json.example cp conf/conf.d/database.json
+1. 源码下载
+go get github.com/yigger/JZ-back
 
-cp conf/conf.d/jz.json.example cp conf/conf.d/jz.json
+2. Mysql 配置文件
+cp conf/conf.d/database.json.example database.json
+编辑 database.json，填写你本地环境的参数
 
-cp conf/conf.d/redis.json.example cp conf/conf.d/redis.json
+3. 迁移
+// TODO: 待完善
+
+3. Redis 配置文件
+cp conf/conf.d/redis.json.example redis.json
+
+4. 常规配置文件
+cp conf/conf.d/jz.json.example jz.json
+自行准备好 app_id 和 app_secret，此参数请登录微信小程序进行获取
+
+```
+
+## 运行
+```
+go run main.go
+
+然后打开小程序开发工具，查看 network，检查接口连接情况
+```
+
+## 目录结构
+```sh
+conf            配置项
+controller      控制器层（C）
+log             日子类
+middleware      中间件
+model           模型（M）
+service         服务层（业务逻辑封装）
+public          静态资源
+tests           测试类
+utils           工具类
 ```
 
 ## 热加载
 https://github.com/cosmtrek/air
+
+## 联系
+yigger#163.com
