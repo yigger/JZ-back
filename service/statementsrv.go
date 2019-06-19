@@ -2,14 +2,11 @@ package service
 
 import (
 	"fmt"
-	"time"
-	"sync"
-	"strconv"
 	"github.com/mitchellh/mapstructure"
-	"github.com/yigger/jodaTime"
-
 	"github.com/yigger/JZ-back/model"
-	"github.com/yigger/JZ-back/utils"
+	"strconv"
+	"sync"
+	"time"
 )
 
 var Statement = &statementService{mutex: &sync.Mutex{}}
@@ -21,10 +18,10 @@ type statementService struct {
 func (srv *statementService)GetStatements() (res []map[string]interface{}) {
 	db := model.ConnectDB()
 
+	// 筛选七天内的账单数据
 	var statements []model.Statement
 	beforeDay, _ := time.ParseDuration("-168h") // 7day before
 	seventDayBefore := time.Now().Add(beforeDay).Format("2006-01-02 15:04:05")
-
 	if err := db.Model(&CurrentUser).
 				 Where("created_at >= ? AND created_at <= ?", seventDayBefore, time.Now()).
 				 Order("created_at desc").
@@ -34,42 +31,7 @@ func (srv *statementService)GetStatements() (res []map[string]interface{}) {
 	}
 
 	for _, statement := range statements {
-		dateTime, _ := time.ParseInLocation("2006-01-02 15:04:05", statement.Date(), time.Local)
-
-		json := map[string]interface{}{
-			"id": statement.ID,
-			"type": statement.Type,
-			"description": statement.Description,
-			"title": statement.Title,
-			"money": statement.AmountHuman(),
-			"date": jodaTime.Format("YYYY-MM-dd", dateTime),
-			"category": nil,
-			"icon_path": nil,
-			"asset": nil,
-			"time": statement.Time(),
-			"location": statement.Location,
-			"province": statement.Province,
-			"city": statement.City,
-			"street": statement.Street,
-			"month_day": jodaTime.Format("MM-dd", dateTime),
-			"timeStr": jodaTime.Format("MM-dd HH:mm", dateTime),
-			"week": utils.WeekMap[dateTime.Weekday().String()],
-		}
-
-		var Category model.Category
-		category := Category.GetCategoryById(statement.CategoryId)
-		if category != nil {
-			json["category"] = category.Name
-			json["icon_path"] = category.IconUrl()
-		}
-		
-		var Asset model.Asset
-		asset := Asset.GetAssetById(statement.AssetId)
-		if asset != nil {
-			json["asset"] = asset.Name
-		}
-
-		res = append(res, json)
+		res = append(res, statement.ToHumanJson())
 	}
 
 	return
@@ -91,12 +53,12 @@ func (srv *statementService)CreateStatement(params map[string]interface{}) (*mod
 }
 
 func (srv *statementService)UpdateStatement(statement *model.Statement, params map[string]interface{}) (*model.Statement, error) {
-	// statementParams := formatStatementParams(params)
-	// err := mapstructure.Decode(statementParams, &statement)
-	// if err != nil {
-	// 	logger.Error(err)
-	// 	return statement, err
-	// }
+	statementParams := formatStatementParams(params)
+	err := mapstructure.Decode(statementParams, &statement)
+	if err != nil {
+		logger.Error(err)
+		return statement, err
+	}
 
 	logger.Info(statement)
 	return statement, nil
