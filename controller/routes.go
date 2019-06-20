@@ -44,6 +44,7 @@ func loadRoutes() {
 	statement.GET("/categories", GetStatementCategoriesAction)
 	statement.GET("/category_frequent", CategoryFrequentUseAction)
 	statement.GET("/asset_frequent", AssetFrequentUseAction)
+	// statement.GET("images", "")
 
 	// 用户相关接口
 	user := api.Group("/users")
@@ -53,15 +54,31 @@ func loadRoutes() {
 	// 资产页相关接口
 	wallet := api.Group("/wallet")
 	wallet.GET("", GetWalletsAction)
+	// wallet.GET("time_line", "")
+	// wallet.GET("information", "")
 
-	// 设置页
+	// 设置页相关接口
 	settings := api.Group("/settings")
 	settings.GET("", SettingIndexAction)
 	settings.GET("/about", AboutMeAction)
 	settings.POST("/feedback", FeedBackAction)
+	// // 面板背景图片列表
+	// settings.GET("/covers", "")
+	// // 三个位置下拉数据
+	// settings.GET("/positions", "")
+
+
+	// 预算相关接口
+	// budget := api.Group("/budgets")
+	// budget.GET("", "")
+	// budget.GET("/parent", "")
+
+	// message := api.Group("message")
+	// message.GET("", "")
 
 	// 分类相关接口
 	category := api.Group("/categories")
+	category.POST("", CreateCategoryAction)
 	category.GET("/category_list", GetCategoryListAction)
 	category.GET("/category_childs", GetCategoryListAction)
 	category.GET("/category_statements", GetCategoryStatementsAction)

@@ -51,3 +51,8 @@ func GetParentCategoriesAction(c echo.Context) error {
 	res := service.Category.GetParentList(categoryType)
 	return c.JSON(http.StatusOK, res)
 }
+
+func CreateCategoryAction(c echo.Context) error {
+
+}
+ 
