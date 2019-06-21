@@ -104,3 +104,18 @@ func (CategoryService) GetParentList(categoryType string) (res []*model.Category
 	}
 	return
 }
+
+func (CategoryService) GetCategoryById(categoryId string) (model.Category, error) {
+	db := model.ConnectDB()
+	var category model.Category
+	if err := db.Find(&category, categoryId); err != nil {
+		Log.Error(err.Error)
+	} else {
+		if category.UserId != CurrentUser.ID {
+			// 此处 nil 应为对应的错误
+			// 自定义错误
+			return category, nil
+		}
+	}
+	return category, nil
+}

@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"net/http"
 	"github.com/labstack/echo"
+	"net/http"
 
+	. "github.com/yigger/JZ-back/log"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/service"
 	"github.com/yigger/JZ-back/utils"
@@ -53,6 +54,30 @@ func GetParentCategoriesAction(c echo.Context) error {
 }
 
 func CreateCategoryAction(c echo.Context) error {
+	res := RenderJson()
+	defer c.JSON(http.StatusOK, res)
+	params := make(map[string]model.Category)
+	if err := c.Bind(&params); err != nil {
+		Log.Errorf(err.Error())
+		res.Msg = err.Error()
+	} else {
+		var Category model.Category
+		category := params["category"]
+		category.UserId = service.CurrentUser.ID
+		Category.Create(category)
+	}
 
+	return nil
 }
- 
+
+func GetCategoryDetail(c echo.Context) error {
+	res := RenderJson()
+	defer c.JSON(http.StatusOK, res)
+	categoryId := c.FormValue("id")
+	if categoryId == "" {
+		res.Msg = "无效的参数"
+	}
+
+
+	return nil
+}

@@ -7,7 +7,7 @@ import (
 type Category struct {
 	CommonModel
 
-	UserId					int  		`json:"user_id"`
+	UserId					uint  		`json:"user_id"`
 	Type					string		`json:"type"`
 	Name					string  	`json:"name"`
 	ParentId				int     	`json:"parent_id"`
@@ -78,4 +78,8 @@ func (_ Category) GetParentCategories(user *User, categoryType string) (categori
 		Log.Errorf(err.Error())
 	}
 	return
+}
+
+func (_ Category) Create(category Category) {
+	db.Create(&category)
 }

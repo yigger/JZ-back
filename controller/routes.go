@@ -83,6 +83,7 @@ func loadRoutes() {
 	category.GET("/category_childs", GetCategoryListAction)
 	category.GET("/category_statements", GetCategoryStatementsAction)
 	category.GET("/parent", GetParentCategoriesAction)
+	category.GET("/:id", GetCategoryDetail)
 
 	// icon 列表
 	icon := echoServer.Group("/api/icons")
