@@ -41,18 +41,21 @@ func GetCategoryListAction(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// 获取某分类的所有账单列表
 func GetCategoryStatementsAction(c echo.Context) error {
 	categoryId := c.FormValue("category_id")
 	res := service.Category.GetStatementByCategoryId(categoryId)
 	return c.JSON(http.StatusOK, res)
 }
 
+// 获取父级分类的所有列表
 func GetParentCategoriesAction(c echo.Context) error {
 	categoryType := c.FormValue("type")
 	res := service.Category.GetParentList(categoryType)
 	return c.JSON(http.StatusOK, res)
 }
 
+// 创建分类
 func CreateCategoryAction(c echo.Context) error {
 	res := RenderJson()
 	defer c.JSON(http.StatusOK, res)
@@ -70,14 +73,15 @@ func CreateCategoryAction(c echo.Context) error {
 	return nil
 }
 
+// 获取编辑分类时所需的分类详情数据
 func GetCategoryDetail(c echo.Context) error {
-	res := RenderJson()
-	defer c.JSON(http.StatusOK, res)
-	categoryId := c.FormValue("id")
-	if categoryId == "" {
-		res.Msg = "无效的参数"
+	categoryId := c.Param("id")
+	category, err := service.Category.GetCategoryById(categoryId)
+	if err != nil {
+		res := RenderJson()
+		res.Msg = err.Error()
+		return c.JSON(http.StatusOK, res)
+	} else {
+		return c.JSON(http.StatusOK, category)
 	}
-
-
-	return nil
 }

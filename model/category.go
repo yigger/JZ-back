@@ -32,6 +32,17 @@ type CategoryItem struct {
 	Type			string 		`json:"type"`
 }
 
+type CategoryEdit struct {
+	ID				uint		`json:"id"`
+	Name			string		`json:"name"`
+	Order			int			`json:"order"`
+	IconPath		string		`json:"icon_path"`
+	ParentId		int			`json:"parent_id"`
+	Amount			string		`json:"amount"`
+	Type			string 		`json:"type"`
+	ParentName 		string 		`json:"parent_name"`
+}
+
 type SumResult struct {
 	Amount float64 //or int ,or some else
 }
@@ -82,4 +93,9 @@ func (_ Category) GetParentCategories(user *User, categoryType string) (categori
 
 func (_ Category) Create(category Category) {
 	db.Create(&category)
+}
+
+func (c *Category) Parent() (category Category) {
+	db.Find(&category, c.ParentId)
+	return
 }

@@ -1,11 +1,12 @@
 package service
 
 import (
+	"errors"
 	"sync"
 
+	. "github.com/yigger/JZ-back/log"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/utils"
-	. "github.com/yigger/JZ-back/log"
 )
 
 var Category = &CategoryService{mutex: &sync.Mutex{}}
@@ -105,17 +106,26 @@ func (CategoryService) GetParentList(categoryType string) (res []*model.Category
 	return
 }
 
-func (CategoryService) GetCategoryById(categoryId string) (model.Category, error) {
+func (CategoryService) GetCategoryById(categoryId string) (item model.CategoryEdit,err error) {
 	db := model.ConnectDB()
 	var category model.Category
-	if err := db.Find(&category, categoryId); err != nil {
-		Log.Error(err.Error)
+	err = db.Find(&category, categoryId).Error
+	if err != nil {
+		return
+	}
+
+	if category.UserId != CurrentUser.ID {
+		err = errors.New("无效的参数")
 	} else {
-		if category.UserId != CurrentUser.ID {
-			// 此处 nil 应为对应的错误
-			// 自定义错误
-			return category, nil
+		item = model.CategoryEdit{
+			ID: category.ID,
+			Name: category.Name,
+			Order: category.Order,
+			IconPath: category.IconPath,
+			ParentId: category.ParentId,
+			Type: category.Type,
+			ParentName: category.Parent().Name,
 		}
 	}
-	return category, nil
+	return
 }
