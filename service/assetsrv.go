@@ -13,7 +13,7 @@ type assetService struct {
 }
 
 // 资产界面的数据
-func (srv *assetService)GetWallet() (res map[string]interface{}) {
+func (srv *assetService) GetWallet() (res map[string]interface{}) {
 	db := model.ConnectDB()
 
 	// 资产的顶部信息
@@ -28,7 +28,7 @@ func (srv *assetService)GetWallet() (res map[string]interface{}) {
 		logger.Info(err)
 	}
 	// 资产的列表
-	var list = []map[string]interface{}{}
+	var list []map[string]interface{}
 	for _, asset := range parentAssets {
 		// 子分类列表
 		var childsAsset []model.Asset
@@ -67,7 +67,7 @@ func (srv *assetService)GetWallet() (res map[string]interface{}) {
 	return 
 }
 
-func GetAssetInformation(assetId string) (interface{}, error) {
+func (srv *assetService) GetAssetInformation(assetId string) (interface{}, error) {
 	asset := &model.Asset{}
 	db := model.ConnectDB()
 	if err := db.Table("assets").Where("id = ? AND creator_id = ?", assetId, CurrentUser.ID).Find(&asset).Error; asset.ID == 0 || err != nil {
@@ -85,16 +85,79 @@ func GetAssetInformation(assetId string) (interface{}, error) {
 		return nil, err
 	}
 
-	surplus := incomeResult.Amount - expendResult.Amount
+	//surplus := incomeResult.Amount - expendResult.Amount
 	res := map[string]interface{}{
 		"name": asset.Name,
 		"income": utils.FormatMoney(incomeResult.Amount),
 		"expend": utils.FormatMoney(expendResult.Amount),
-		"surplus": utils.FormatMoney(surplus),
+		"surplus": utils.FormatMoney(asset.Amount),
 		"source_surplus": asset.Amount,
 	}
 
 	return res, nil
+}
+
+func (srv *assetService) GetAssetTimeLine(assetId string) (interface{}, error) {
+	asset := &model.Asset{}
+	db := model.ConnectDB()
+	if err := db.Table("assets").Where("id = ? AND creator_id = ?", assetId, CurrentUser.ID).Find(&asset).Error; asset.ID == 0 || err != nil {
+		return nil, err
+	}
+
+	var times []model.Statement
+	if err := db.Table("statements").Where("user_id = ? AND asset_id = ?", CurrentUser.ID, asset.ID).Group("year, month").Order("year desc, month desc").Find(&times).Error; err != nil {
+		return nil, err
+	}
+
+	var data []map[string]interface{}
+	for _, time := range times {
+		//month_statemenets = @statements.where(year: time.year, month: time.month)
+		query := db.Table("statements").Where("user_id = ? AND asset_id = ? AND year = ? AND month = ?", CurrentUser.ID, asset.ID, time.Year, time.Month)
+		incomeResult := &model.SumResult{}
+		expendResult := &model.SumResult{}
+		if err := query.Where("type = 'income'").Select("sum(amount) as amount").Scan(&incomeResult).Error; err != nil {
+			return nil, err
+		}
+
+		if err := query.Where("type = 'expend'").Select("sum(amount) as amount").Scan(&expendResult).Error; err != nil {
+			return nil, err
+		}
+
+		surplus := incomeResult.Amount - expendResult.Amount
+		json := map[string]interface{}{
+			"expend_amount": utils.FormatMoney(expendResult.Amount),
+			"income_amount": utils.FormatMoney(incomeResult.Amount),
+			"surplus": utils.FormatMoney(surplus),
+			"year": time.Year,
+			"month": time.Month,
+			"hidden": 1,
+		}
+		data = append(data, json)
+	}
+
+	return data, nil
+}
+
+func (srv *assetService) GetStatementsByAsset(assetId string, year string, month string) ([]map[string]interface{}, error) {
+	asset := &model.Asset{}
+	db := model.ConnectDB()
+	if err := db.Table("assets").Where("id = ? AND creator_id = ?", assetId, CurrentUser.ID).Find(&asset).Error; asset.ID == 0 || err != nil {
+		return nil, err
+	}
+
+	var statements []model.Statement
+	if err := db.Table("statements").
+				Where("user_id = ? AND asset_id = ? AND year = ? AND month = ?", CurrentUser.ID, asset.ID, year, month).Order("created_at desc").
+				Find(&statements).
+				Error; err != nil {
+		return nil, err
+	}
+
+	var data []map[string]interface{}
+	for _, statement := range statements {
+		data = append(data, statement.ToHumanJson())
+	}
+	return data, nil
 }
 
 // 用户总资产

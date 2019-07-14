@@ -42,44 +42,44 @@ func (user User) GetStatements() (statements []*Statement, err error) {
 	return
 }
 
-func (st *Statement) Date() string {
-	return fmt.Sprintf("%d-%02d-%02d %s", st.Year, st.Month, st.Day, st.Time())
+func (statement *Statement) Date() string {
+	return fmt.Sprintf("%d-%02d-%02d %s", statement.Year, statement.Month, statement.Day, statement.Time())
 }
 
-func (st *Statement) Time() string {
-	return st.CreatedAt.Format("15:04:05")
+func (statement *Statement) Time() string {
+	return statement.CreatedAt.Format("15:04:05")
 }
 
 func (Statement) Create(statement *Statement) {
 	db.Create(statement)
 }
 
-func (st *Statement) AmountHuman() string {
+func (statement *Statement) AmountHuman() string {
 	ac := accounting.Accounting{Symbol: "", Precision: 2}
-	return ac.FormatMoney(st.Amount)
+	return ac.FormatMoney(statement.Amount)
 }
 
 func (statement *Statement) ToHumanJson() (json map[string]interface{}) {
 	dateTime, _ := time.ParseInLocation("2006-01-02 15:04:05", statement.Date(), time.Local)
 
 	json = map[string]interface{}{
-		"id": statement.ID,
-		"type": statement.Type,
+		"id":          statement.ID,
+		"type":        statement.Type,
 		"description": statement.Description,
-		"title": statement.Title,
-		"money": statement.AmountHuman(),
-		"date": jodaTime.Format("YYYY-MM-dd", dateTime),
-		"category": nil,
-		"icon_path": nil,
-		"asset": nil,
-		"time": statement.Time(),
-		"location": statement.Location,
-		"province": statement.Province,
-		"city": statement.City,
-		"street": statement.Street,
-		"month_day": jodaTime.Format("MM-dd", dateTime),
-		"timeStr": jodaTime.Format("MM-dd HH:mm", dateTime),
-		"week": utils.WeekMap[dateTime.Weekday().String()],
+		"title":       statement.Title,
+		"money":       statement.AmountHuman(),
+		"date":        jodaTime.Format("YYYY-MM-dd", dateTime),
+		"category":    nil,
+		"icon_path":   nil,
+		"asset":       nil,
+		"time":        statement.Time(),
+		"location":    statement.Location,
+		"province":    statement.Province,
+		"city":        statement.City,
+		"street":      statement.Street,
+		"month_day":   jodaTime.Format("MM-dd", dateTime),
+		"timeStr":     jodaTime.Format("MM-dd HH:mm", dateTime),
+		"week":        utils.WeekMap[dateTime.Weekday().String()],
 	}
 
 	var Category Category

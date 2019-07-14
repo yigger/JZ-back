@@ -19,7 +19,7 @@ func EchoNew() *echo.Echo {
 }
 
 func loadRoutes() {
-	echoServer.GET("check_update", func(c echo.Context) (error) {
+	echoServer.GET("check_update", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, 0)
 	})
 
@@ -54,8 +54,9 @@ func loadRoutes() {
 	// 资产页相关接口
 	wallet := api.Group("/wallet")
 	wallet.GET("", GetWalletsAction)
-	// wallet.GET("time_line", "")
-	wallet.GET("/information", WalletInformationAction)
+	wallet.GET("/time_line", GetWalletInfoTimeLineAction)
+	wallet.GET("/information", GetWalletInfoAction)
+	wallet.GET("/statement_list", GetWalletStatementListAction)
 
 	// 设置页相关接口
 	settings := api.Group("/settings")
