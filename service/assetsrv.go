@@ -67,6 +67,36 @@ func (srv *assetService)GetWallet() (res map[string]interface{}) {
 	return 
 }
 
+func GetAssetInformation(assetId string) (interface{}, error) {
+	asset := &model.Asset{}
+	db := model.ConnectDB()
+	if err := db.Table("assets").Where("id = ? AND creator_id = ?", assetId, CurrentUser.ID).Find(&asset).Error; asset.ID == 0 || err != nil {
+		return nil, err
+	}
+
+	incomeResult := &model.SumResult{}
+	expendResult := &model.SumResult{}
+	stQuery := db.Table("statements").Where("user_id = ? AND asset_id = ?", CurrentUser.ID, asset.ID)
+	if err := stQuery.Where("type = 'income'").Select("sum(amount) as amount").Scan(&incomeResult).Error; err != nil {
+		return nil, err
+	}
+
+	if err := stQuery.Where("type = 'expend'").Select("sum(amount) as amount").Scan(&expendResult).Error; err != nil {
+		return nil, err
+	}
+
+	surplus := incomeResult.Amount - expendResult.Amount
+	res := map[string]interface{}{
+		"name": asset.Name,
+		"income": utils.FormatMoney(incomeResult.Amount),
+		"expend": utils.FormatMoney(expendResult.Amount),
+		"surplus": utils.FormatMoney(surplus),
+		"source_surplus": asset.Amount,
+	}
+
+	return res, nil
+}
+
 // 用户总资产
 func totalAssetSum() (amount float64) {
 	db := model.ConnectDB()

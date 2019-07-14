@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"net/http"
 	"github.com/labstack/echo"
+	"net/http"
 
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/service"
@@ -65,9 +65,11 @@ func updateUserAction(c echo.Context) error {
 		json.Msg = "err params"
 		logger.Info(err)
 	}
-	
+
 	userParams := params["user"].(map[string]interface{})
-	userParams["alreadyLogin"] = params["already_login"]
+	if _, ok := userParams["alreadyLogin"]; ok {
+		userParams["alreadyLogin"] = params["already_login"]
+	}
 	service.User.UpdateUser(userParams)
 
 	return nil

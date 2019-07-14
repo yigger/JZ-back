@@ -56,21 +56,41 @@ func (srv *userService) Login(code string) (user *model.User, err error) {
 }
 
 func (srv *userService) UpdateUser(userParams map[string]interface{}) (*model.User, error) {
-	var alreadyLogin uint64
-	if userParams["alreadyLogin"].(bool) {
-		alreadyLogin = 1
+	// set user login status
+	if _, ok := userParams["alreadyLogin"]; ok && userParams["alreadyLogin"].(bool) {
+		CurrentUser.AlreadyLogin = 1
 	} else {
-		alreadyLogin = 0
+		CurrentUser.AlreadyLogin = 0
 	}
 
-	CurrentUser.Country = userParams["country"].(string)
-	CurrentUser.City = userParams["city"].(string)
-	CurrentUser.Gender = uint64(userParams["gender"].(float64))
-	CurrentUser.Language = userParams["language"].(string)
-	CurrentUser.Province = userParams["province"].(string)
-	CurrentUser.Nickname = userParams["nickName"].(string)
-	CurrentUser.AvatarUrl = userParams["avatarUrl"].(string)
-	CurrentUser.AlreadyLogin = alreadyLogin
+	if _, ok := userParams["country"]; ok {
+		CurrentUser.Country = userParams["country"].(string)
+	}
+
+	if _, ok := userParams["city"]; ok {
+		CurrentUser.City = userParams["city"].(string)
+	}
+
+	if _, ok := userParams["gender"]; ok {
+		CurrentUser.Gender = userParams["gender"].(uint64)
+	}
+
+	if _, ok := userParams["province"]; ok {
+		CurrentUser.Province = userParams["province"].(string)
+	}
+
+	if _, ok := userParams["nickName"]; ok {
+		CurrentUser.Nickname = userParams["nickName"].(string)
+	}
+
+	if _, ok := userParams["avatarUrl"]; ok {
+		CurrentUser.AvatarUrl = userParams["avatarUrl"].(string)
+	}
+
+	if _, ok := userParams["hidden_asset_money"]; ok {
+		CurrentUser.HiddenAssetMoney = uint64(userParams["hidden_asset_money"].(float64))
+	}
+
 	var User model.User
 	User.UpdateUser(CurrentUser)
 	

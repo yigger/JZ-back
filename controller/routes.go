@@ -55,7 +55,7 @@ func loadRoutes() {
 	wallet := api.Group("/wallet")
 	wallet.GET("", GetWalletsAction)
 	// wallet.GET("time_line", "")
-	// wallet.GET("information", "")
+	wallet.GET("/information", WalletInformationAction)
 
 	// 设置页相关接口
 	settings := api.Group("/settings")

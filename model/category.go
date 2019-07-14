@@ -44,7 +44,7 @@ type CategoryEdit struct {
 }
 
 type SumResult struct {
-	Amount float64 //or int ,or some else
+	Amount float64
 }
 
 func (Category) GetCategoryById(id int) *Category {

@@ -11,7 +11,7 @@ require (
 	github.com/jinzhu/gorm v1.9.1
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/labstack/echo v3.3.10+incompatible
-	github.com/labstack/gommon v0.2.8 // indirect
+	github.com/labstack/gommon v0.2.8
 	github.com/leekchan/accounting v0.0.0-20180703100437-18a1925d6514
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.7 // indirect
