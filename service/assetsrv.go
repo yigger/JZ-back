@@ -1,9 +1,11 @@
 package service
 
 import (
-	"sync"
+	"github.com/pkg/errors"
 	"github.com/yigger/JZ-back/model"
 	"github.com/yigger/JZ-back/utils"
+	"strconv"
+	"sync"
 )
 
 var Asset = &assetService{mutex: &sync.Mutex{}}
@@ -158,6 +160,21 @@ func (srv *assetService) GetStatementsByAsset(assetId string, year string, month
 		data = append(data, statement.ToHumanJson())
 	}
 	return data, nil
+}
+
+func (srv *assetService) UpdateSurplus(id string, params map[string]interface{}) (bool, error) {
+	//fmt.Println(params)
+	db := model.ConnectDB()
+	assetId, _ := strconv.ParseInt(id, 10, 64)
+	var Asset model.Asset
+	asset := Asset.GetAssetById(int(assetId))
+	if asset == nil || asset.CreatorId != CurrentUser.ID {
+		return false, errors.New("无效的用户")
+	}
+	// update the surplus
+	asset.Amount = params["amount"].(float64)
+	db.Save(asset)
+	return true, nil
 }
 
 // 用户总资产

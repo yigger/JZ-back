@@ -19,7 +19,7 @@ type Asset struct {
 	Budget					float64		`json:"budget"`
 	Frequent				int			`json:"frequent"`
 	Remark					string		`json:"remark"`
-	CreatorId				int			`json:"creator_id"`
+	CreatorId				uint			`json:"creator_id"`
 }
 
 
@@ -29,7 +29,6 @@ func (Asset) GetAssetById(id int) *Asset {
 		fmt.Println(err)
 		return nil
 	}
-
 	return ret
 }
 

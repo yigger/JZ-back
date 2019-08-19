@@ -38,7 +38,6 @@ func (user User) GetStatements() (statements []*Statement, err error) {
 	if err = db.Where("user_id = ?", user.ID).Find(&statements).Error; err != nil {
 		fmt.Println(err)
 	}
-
 	return
 }
 

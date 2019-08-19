@@ -57,6 +57,7 @@ func loadRoutes() {
 	wallet.GET("/time_line", GetWalletInfoTimeLineAction)
 	wallet.GET("/information", GetWalletInfoAction)
 	wallet.GET("/statement_list", GetWalletStatementListAction)
+	wallet.PUT("/surplus", UpdateSurplusAction)
 
 	// 设置页相关接口
 	settings := api.Group("/settings")

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"github.com/yigger/JZ-back/service"
@@ -47,4 +48,23 @@ func GetWalletStatementListAction(c echo.Context) error {
 		res.Data = data
 		return c.JSON(http.StatusOK, res)
 	}
+}
+
+// 更新账户的余额
+func UpdateSurplusAction(c echo.Context) error {
+	json := RenderJson()
+	defer c.JSON(http.StatusOK, json)
+	assetId := c.FormValue("asset_id")
+	params := map[string]interface{}{
+		"isMess": c.FormValue("is_mess"),
+		"amount": c.Param("amount"),
+	}
+	fmt.Println("haha")
+	fmt.Println(c.FormValue("amount"))
+
+	_, err := service.Asset.UpdateSurplus(assetId, params)
+	if err != nil {
+		json.Msg = err.Error()
+	}
+	return nil
 }
