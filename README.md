@@ -21,8 +21,8 @@ go get github.com/yigger/JZ-back
 cp conf/conf.d/database.json.example database.json
 编辑 database.json，填写你本地环境的参数
 
-3. 迁移
-// TODO: 待完善
+3. Database 迁移
+go run migrate/run.go
 
 3. Redis 配置文件
 cp conf/conf.d/redis.json.example redis.json
