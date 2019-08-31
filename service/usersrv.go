@@ -72,7 +72,7 @@ func (srv *userService) UpdateUser(userParams map[string]interface{}) (*model.Us
 	}
 
 	if _, ok := userParams["gender"]; ok {
-		CurrentUser.Gender = userParams["gender"].(uint64)
+		CurrentUser.Gender = uint64(userParams["gender"].(float64))
 	}
 
 	if _, ok := userParams["province"]; ok {
