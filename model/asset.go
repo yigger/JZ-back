@@ -16,7 +16,6 @@ type Asset struct {
 	Order					int     	`json:"order"`
 	IconPath				string     	`json:"icon_path"`
 	Lock					int 		`json:"lock"`
-	Budget					float64		`json:"budget"`
 	Frequent				int			`json:"frequent"`
 	Remark					string		`json:"remark"`
 	CreatorId				uint			`json:"creator_id"`

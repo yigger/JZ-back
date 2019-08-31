@@ -99,7 +99,7 @@ func loadRoutes() {
 	})
 }
 
-// FIXME: 这里一纬数组就够了，但是为了兼容目前线上的数据，暂时使用二维
+// FIXME: 这里一维数组就够了，但是为了兼容目前线上的数据，暂时使用二维
 func getIcons(iconType string) (res [][]string) {
 	// FIXME: 需要缓存，避免每次的 IO 开销
 	root, _ := os.Getwd()

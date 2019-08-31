@@ -171,8 +171,13 @@ func (srv *assetService) UpdateSurplus(id string, params map[string]interface{})
 	if asset == nil || asset.CreatorId != CurrentUser.ID {
 		return false, errors.New("无效的用户")
 	}
+
 	// update the surplus
-	asset.Amount = params["amount"].(float64)
+	amount, err := strconv.ParseFloat(params["amount"].(string), 64)
+	if err != nil {
+		return false, err
+	}
+	asset.Amount = amount
 	db.Save(asset)
 	return true, nil
 }
